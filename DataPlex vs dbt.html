@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Data Quality, Testing & Consumption — Engineering Review</title>
+
+<!-- reveal.js core + a light base theme we override below -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css" id="theme" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/monokai.css" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<style>
+  /* ---------- Palette (inspired by, not a recreation of, the Lloyds green family) ---------- */
+  :root {
+    --green-900: #003824;
+    --green-800: #005a3c;
+    --green-700: #006a4d;   /* primary */
+    --green-600: #1a8060;
+    --green-500: #2f9a78;
+    --green-100: #e6f1ec;
+    --green-050: #f3f8f5;
+    --ink:       #14201b;
+    --ink-soft:  #3b4a44;
+    --line:      #d8e3dd;
+    --paper:     #ffffff;
+    --warn:      #b5651d;
+    --accent:    #9ec5b3;
+  }
+
+  /* ---------- Reveal overrides ---------- */
+  .reveal {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--ink);
+    font-weight: 400;
+    letter-spacing: -0.005em;
+  }
+  .reveal .slides { text-align: left; }
+  .reveal .slides section { padding: 48px 64px; box-sizing: border-box; font-size: 18px; }
+  /* Title + section-divider slides paint the whole frame, so the
+     outer section padding would create a thin un-tinted border. Reset it. */
+  .reveal .slides section:has(> .title-slide),
+  .reveal .slides section:has(> .section-slide) { padding: 0; }
+
+  .reveal h1, .reveal h2, .reveal h3, .reveal h4 {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--green-900);
+    text-transform: none;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+    line-height: 1.1;
+    margin: 0 0 0.4em;
+  }
+  .reveal h1 { font-size: 3.2rem; }
+  .reveal h2 { font-size: 2.2rem; }
+  .reveal h3 { font-size: 1.4rem; }
+  .reveal p, .reveal li { font-size: 1.15rem; line-height: 1.5; color: var(--ink-soft); }
+  .reveal strong { color: var(--ink); font-weight: 600; }
+  .reveal ul { list-style: none; padding: 0; margin: 0; }
+  .reveal ul li { padding-left: 1.1em; position: relative; margin-bottom: 0.45em; }
+  .reveal ul li::before {
+    content: ""; position: absolute; left: 0; top: 0.7em;
+    width: 0.5em; height: 2px; background: var(--green-700);
+  }
+  .reveal a { color: var(--green-700); }
+  .reveal code, .reveal pre {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  .reveal pre {
+    background: #0f1a15; color: #e6f1ec;
+    border-radius: 10px; padding: 18px 22px;
+    font-size: 0.9rem; line-height: 1.5;
+    box-shadow: 0 10px 30px rgba(0,58,40,0.15);
+  }
+  .reveal pre code { background: transparent; padding: 0; }
+
+  .reveal .progress { color: var(--green-700); }
+  .reveal .controls { color: var(--green-700) !important; }
+
+  /* ---------- Layout primitives ---------- */
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 0.78rem;
+    color: var(--green-700);
+    font-weight: 500;
+    margin-bottom: 18px;
+  }
+  .rule {
+    width: 56px; height: 4px; background: var(--green-700);
+    margin: 0 0 26px; border-radius: 2px;
+  }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 22px; }
+  .card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 22px 24px;
+  }
+  .card.tinted { background: var(--green-050); border-color: var(--green-100); }
+  .card.dark   { background: var(--green-900); color: #e6f1ec; border-color: var(--green-900); }
+  .card.dark h3 { color: #ffffff; }
+  .card.dark li { color: #cfe2d8; }
+  .card.dark li::before { background: var(--accent); }
+  .card h3 { margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+  .pill {
+    display: inline-block; font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 3px 9px; border-radius: 999px;
+    background: var(--green-100); color: var(--green-800);
+    font-weight: 500;
+  }
+  .pill.dark { background: rgba(255,255,255,0.1); color: #cfe2d8; }
+  .pill.warn { background: #f8ecd9; color: var(--warn); }
+
+  /* ---------- Title slide ---------- */
+  .title-slide {
+    background: linear-gradient(135deg, var(--green-900) 0%, var(--green-700) 100%);
+    color: #fff;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 64px 72px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    gap: 32px;
+  }
+  .title-slide h1 { color: #fff; font-size: 3.6rem; max-width: 16ch; }
+  .title-slide .eyebrow { color: var(--accent); }
+  .title-slide .rule { background: var(--accent); }
+  .title-slide p { color: #cfe2d8; font-size: 1.2rem; max-width: 60ch; }
+  .title-meta {
+    display: flex; gap: 40px; font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem; color: #9ec5b3; letter-spacing: 0.06em;
+  }
+  .title-meta span strong { display: block; color: #fff; font-family: 'Inter', sans-serif; font-weight: 500; font-size: 0.95rem; margin-top: 4px; letter-spacing: 0; }
+
+  /* ---------- Section divider ---------- */
+  .section-slide {
+    background: var(--green-900); color: #fff;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 64px 88px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .section-slide h2 { color: #fff; font-size: 3rem; max-width: 18ch; }
+  .section-slide .eyebrow { color: var(--accent); }
+  .section-slide .rule { background: var(--accent); }
+  .section-slide p { color: #cfe2d8; font-size: 1.25rem; max-width: 56ch; }
+
+  /* ---------- Comparison table ---------- */
+  .compare {
+    width: 100%; border-collapse: separate; border-spacing: 0;
+    font-size: 1.02rem;
+  }
+  .compare th, .compare td {
+    text-align: left; padding: 14px 18px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  .compare thead th {
+    background: var(--green-050); color: var(--green-900);
+    font-weight: 600; font-size: 0.95rem;
+    border-bottom: 2px solid var(--green-700);
+  }
+  .compare tbody th {
+    font-weight: 500; color: var(--ink); width: 22%;
+    background: #fafcfb;
+  }
+  .compare td { color: var(--ink-soft); }
+  .compare tr:last-child th, .compare tr:last-child td { border-bottom: none; }
+
+  /* ---------- Decision matrix ---------- */
+  .decision {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 18px;
+  }
+  .decision .row {
+    display: grid; grid-template-columns: 1fr auto;
+    align-items: center; gap: 14px;
+    padding: 14px 18px;
+    border: 1px solid var(--line); border-radius: 10px;
+    background: #fff;
+    font-size: 1rem; color: var(--ink);
+  }
+  .decision .row .verdict {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 999px;
+    font-weight: 600;
+  }
+  .verdict.dbt    { background: var(--green-100); color: var(--green-800); }
+  .verdict.dplex  { background: #e6ecf5; color: #1f3a73; }
+  .verdict.both   { background: #f4ecdc; color: var(--warn); }
+
+  /* ---------- Footer chrome ---------- */
+  .slide-footer {
+    position: absolute; left: 64px; right: 64px; bottom: 22px;
+    display: flex; justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; color: #9aa8a0;
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+
+  /* ---------- Misc ---------- */
+  .lede { font-size: 1.3rem; color: var(--ink); max-width: 60ch; }
+  .small { font-size: 0.95rem; }
+  .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; color: var(--green-800); }
+  .kvp { display: grid; grid-template-columns: 120px 1fr; gap: 8px 18px; font-size: 1rem; }
+  .kvp dt { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+            text-transform: uppercase; letter-spacing: 0.08em;
+            color: var(--green-700); padding-top: 3px; }
+  .kvp dd { margin: 0; color: var(--ink-soft); }
+
+  .flow {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;
+    align-items: stretch; margin-top: 18px;
+  }
+  .flow .step {
+    border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 14px 16px; background: #fff; position: relative;
+  }
+  .flow .step .n {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.72rem;
+    color: var(--green-700); letter-spacing: 0.1em;
+  }
+  .flow .step h4 { margin: 4px 0 6px; font-size: 1rem; color: var(--green-900); }
+  .flow .step p  { font-size: 0.88rem; margin: 0; }
+  .flow .step::after {
+    content: "→"; position: absolute; right: -14px; top: 50%;
+    transform: translateY(-50%); color: var(--green-500); font-weight: 600;
+  }
+  .flow .step:last-child::after { content: ""; }
+
+  .callout {
+    border-left: 4px solid var(--green-700);
+    background: var(--green-050);
+    padding: 14px 18px; border-radius: 0 10px 10px 0;
+    margin-top: 18px;
+  }
+  .callout strong { color: var(--green-900); }
+
+  /* ---------- Reveal sizes ---------- */
+  .reveal section img { border: none; box-shadow: none; }
+</style>
+</head>
+
+<body>
+
+<div class="reveal">
+  <div class="slides">
+
+    <!-- =========================================================
+         SLIDE 1 — Title
+    ========================================================== -->
+    <section data-screen-label="01 Title">
+      <div class="title-slide">
+        <div>
+          <div class="eyebrow">Engineering Review · Data Platform</div>
+          <div class="rule"></div>
+          <h1>Data Quality, Pipeline Testing &amp; the Consumption Layer</h1>
+          <p>A proposal covering dbt vs DataPlex for DQ, dbt unit testing in Harness for pipeline validation, and a lightweight Polars-based extract layer for Trading Hub.</p>
+        </div>
+        <div class="title-meta">
+          <span>Audience<strong>Data Platform &amp; Architecture</strong></span>
+          <span>Date<strong>May 2026</strong></span>
+          <span>Status<strong>Proposal · for discussion</strong></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 2 — Agenda
+    ========================================================== -->
+    <section data-screen-label="02 Agenda">
+      <div class="eyebrow">Agenda</div>
+      <div class="rule"></div>
+      <h2>What we'll cover</h2>
+      <div class="three-col" style="margin-top: 28px;">
+        <div class="card">
+          <span class="pill">01</span>
+          <h3>Data Quality</h3>
+          <p class="small">dbt tests vs Google DataPlex — strengths, weaknesses, and when to reach for each.</p>
+        </div>
+        <div class="card">
+          <span class="pill">02</span>
+          <h3>Pipeline Testing</h3>
+          <p class="small">Using dbt's unit testing framework, executed in Harness, to validate transformations before they ship.</p>
+        </div>
+        <div class="card">
+          <span class="pill">03</span>
+          <h3>Consumption Layer</h3>
+          <p class="small">A pragmatic Python + Polars approach for daily JSON extracts to Trading Hub.</p>
+        </div>
+      </div>
+      <div class="callout" style="margin-top: 36px;">
+        <strong>The thread tying it together:</strong> use the simplest tool that earns its place. Avoid heavyweight platform features where a lean, version-controlled equivalent already lives next to the code.
+      </div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 3 — Section divider: DQ
+    ========================================================== -->
+    <section data-screen-label="03 Section · Data Quality">
+      <div class="section-slide">
+        <div class="eyebrow">Part One</div>
+        <div class="rule"></div>
+        <h2>Data quality: dbt tests vs DataPlex</h2>
+        <p>Both can catch bad data. They sit in different layers, operate on different signals, and answer to different teams.</p>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 4 — dbt DQ overview
+    ========================================================== -->
+    <section data-screen-label="04 dbt DQ">
+      <div class="eyebrow">Option A · In-warehouse, code-first</div>
+      <div class="rule"></div>
+      <h2>dbt data quality checks</h2>
+      <div class="two-col" style="margin-top: 18px;">
+        <div>
+          <h3>What it is</h3>
+          <p>Assertions defined in YAML alongside the model — <span class="mono">not_null</span>, <span class="mono">unique</span>, <span class="mono">accepted_values</span>, <span class="mono">relationships</span>, plus singular SQL tests and dbt-expectations for richer rules.</p>
+          <h3 style="margin-top: 22px;">Where it runs</h3>
+          <p>As SQL inside the warehouse (BigQuery), on the same run that builds the model. Failures break the build.</p>
+        </div>
+        <div class="card tinted">
+          <h3>Merits</h3>
+          <ul>
+            <li><strong>Lives with the model</strong> — tests version-controlled in the same PR as the SQL they validate</li>
+            <li><strong>Cheap and fast</strong> — runs as part of the existing dbt invocation; no extra infrastructure</li>
+            <li><strong>Blocks bad data at build time</strong> — a failing test can fail the pipeline before downstream models materialise</li>
+            <li><strong>Engineer-native</strong> — diffs in Git, reviewed in PRs, surfaced in CI</li>
+            <li><strong>Composable</strong> — packages like <span class="mono">dbt-expectations</span> and <span class="mono">dbt-utils</span> cover the common ground</li>
+          </ul>
+        </div>
+      </div>
+      <div class="slide-footer"><span>01 · Data Quality</span><span>dbt</span></div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 5 — DataPlex DQ overview
+    ========================================================== -->
+    <section data-screen-label="05 DataPlex DQ">
+      <div class="eyebrow">Option B · Platform-managed, catalog-driven</div>
+      <div class="rule"></div>
+      <h2>Google DataPlex data quality</h2>
+      <div class="two-col" style="margin-top: 18px;">
+        <div>
+          <h3>What it is</h3>
+          <p>A managed DQ service that runs rule-based scans across BigQuery tables and lakes, with results published into DataPlex/Data Catalog metadata, dashboards, and Cloud Logging.</p>
+          <h3 style="margin-top: 22px;">Where it runs</h3>
+          <p>As scheduled scans on the Google side, decoupled from the build. Rules are defined in YAML or the console; results surface in the catalog and Looker.</p>
+        </div>
+        <div class="card tinted">
+          <h3>Merits</h3>
+          <ul>
+            <li><strong>Cross-asset visibility</strong> — one pane of glass for DQ across BQ, GCS, and other registered assets</li>
+            <li><strong>Catalog integration</strong> — DQ scores attach to the asset; stewards and consumers see them in context</li>
+            <li><strong>Operates on landed data</strong> — catches issues in tables we didn't build (raw ingest, vendor drops)</li>
+            <li><strong>Lineage &amp; profiling</strong> — pairs naturally with column-level profiling and discovery</li>
+            <li><strong>Steward-friendly</strong> — rules can be authored without touching the pipeline repo</li>
+          </ul>
+        </div>
+      </div>
+      <div class="slide-footer"><span>01 · Data Quality</span><span>DataPlex</span></div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 6 — Side-by-side comparison
+    ========================================================== -->
+    <section data-screen-label="06 dbt vs DataPlex compare">
+      <div class="eyebrow">Side by side</div>
+      <div class="rule"></div>
+      <h2>How they differ in practice</h2>
+      <table class="compare" style="margin-top: 16px;">
+        <thead>
+          <tr><th></th><th>dbt tests</th><th>DataPlex DQ</th></tr>
+        </thead>
+        <tbody>
+          <tr><th>Authoring surface</th><td>YAML &amp; SQL in the dbt repo</td><td>YAML, console, or Terraform</td></tr>
+          <tr><th>Lifecycle</th><td>Tied to the model build</td><td>Scheduled, decoupled scans</td></tr>
+          <tr><th>Failure behaviour</th><td>Can break the pipeline run</td><td>Records a score; alerts via logs/Pub/Sub</td></tr>
+          <tr><th>Best at catching</th><td>Logic regressions in transformations</td><td>Drift in landed / raw / shared assets</td></tr>
+          <tr><th>Owned by</th><td>Data engineers</td><td>Data stewards / platform team</td></tr>
+          <tr><th>Cost model</th><td>Warehouse query cost only</td><td>Per-scan platform cost + query cost</td></tr>
+          <tr><th>Discoverability</th><td>Repo, dbt docs, CI output</td><td>Data Catalog, Looker, alerts</td></tr>
+        </tbody>
+      </table>
+      <div class="slide-footer"><span>01 · Data Quality</span><span>Comparison</span></div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 7 — When to use each
+    ========================================================== -->
+    <section data-screen-label="07 When to use which">
+      <div class="eyebrow">Decision guide</div>
+      <div class="rule"></div>
+      <h2>When to reach for each</h2>
+      <div class="decision" style="margin-top: 18px;">
+        <div class="row"><span>Validating a transformation we own</span><span class="verdict dbt">dbt</span></div>
+        <div class="row"><span>Profiling a vendor-supplied raw asset</span><span class="verdict dplex">DataPlex</span></div>
+        <div class="row"><span>Blocking a release if a rule fails</span><span class="verdict dbt">dbt</span></div>
+        <div class="row"><span>Surfacing DQ scores to non-engineer stewards</span><span class="verdict dplex">DataPlex</span></div>
+        <div class="row"><span>Referential integrity between models</span><span class="verdict dbt">dbt</span></div>
+        <div class="row"><span>Drift / freshness on landed tables we don't build</span><span class="verdict dplex">DataPlex</span></div>
+        <div class="row"><span>Column-level profiling &amp; lineage in catalog</span><span class="verdict dplex">DataPlex</span></div>
+        <div class="row"><span>A regulated, gold-tier model with SLAs</span><span class="verdict both">Both</span></div>
+      </div>
+      <div class="callout"><strong>Proposed default:</strong> dbt is the primary DQ surface for anything we build. DataPlex layers on top for landed/shared assets and steward-facing reporting — not as a replacement.</div>
+      <div class="slide-footer"><span>01 · Data Quality</span><span>Recommendation</span></div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 8 — Section divider: Testing
+    ========================================================== -->
+    <section data-screen-label="08 Section · Pipeline testing">
+      <div class="section-slide">
+        <div class="eyebrow">Part Two</div>
+        <div class="rule"></div>
+        <h2>Testing the pipeline itself, not just the data</h2>
+        <p>DQ tests assert on real data after the fact. Unit tests assert on transformation logic against fixed inputs — before anything runs in production.</p>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 9 — dbt unit tests in Harness
+    ========================================================== -->
+    <section data-screen-label="09 dbt unit tests in Harness">
+      <div class="eyebrow">Proposal</div>
+      <div class="rule"></div>
+      <h2>dbt unit tests, executed in Harness</h2>
+      <div class="two-col" style="margin-top: 18px;">
+        <div>
+          <h3>What changes</h3>
+          <p>Today, dbt data tests run after the model materialises. dbt's <strong>unit testing framework</strong> (1.8+) lets us assert on a model's SQL with mocked inputs and expected outputs — no warehouse data required.</p>
+          <h3 style="margin-top: 22px;">Where it runs</h3>
+          <p>As a stage in our Harness pipeline, on every PR and pre-merge. Pure SQL evaluation against fixtures — fast, deterministic, no production data touched.</p>
+        </div>
+        <div class="card tinted">
+          <h3>Why this matters</h3>
+          <ul>
+            <li><strong>Catches logic regressions</strong> in CASE statements, joins, and window functions that data tests miss</li>
+            <li><strong>Deterministic</strong> — fixtures don't drift; the same input always produces the same expected output</li>
+            <li><strong>Fast feedback</strong> — runs in seconds on a PR, no warehouse spend, no scheduled scan latency</li>
+            <li><strong>Documents intent</strong> — the fixture <em>is</em> the spec; reviewers can read it and understand the rule</li>
+            <li><strong>Plays nicely with Harness</strong> — same image, same dbt project, just an extra stage</li>
+          </ul>
+        </div>
+      </div>
+      <div class="slide-footer"><span>02 · Pipeline Testing</span><span>Harness</span></div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 10 — Example unit test + Harness flow
+    ========================================================== -->
+    <section data-screen-label="10 Unit test example">
+      <div class="eyebrow">What it looks like</div>
+      <div class="rule"></div>
+      <h2>A unit test, and where it sits in Harness</h2>
+      <div class="two-col" style="margin-top: 16px;">
+        <div>
+          <h3>dbt unit test (YAML)</h3>
+<pre><code>unit_tests:
+  - name: fx_trade_pnl_handles_fx_reset
+    model: fct_trade_pnl
+    given:
+      - input: ref('stg_trades')
+        rows:
+          - {trade_id: 1, ccy: GBP, notional: 100, fx_rate: 1.00}
+          - {trade_id: 2, ccy: USD, notional: 100, fx_rate: 1.25}
+      - input: ref('dim_fx_reset')
+        rows:
+          - {ccy: USD, reset_rate: 1.30}
+    expect:
+      rows:
+        - {trade_id: 1, pnl_gbp: 100}
+        - {trade_id: 2, pnl_gbp: 130}</code></pre>
+        </div>
+        <div>
+          <h3>Harness pipeline stages</h3>
+          <div class="flow" style="grid-template-columns: 1fr; gap: 10px; margin-top: 0;">
+            <div class="step" style="display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: start;">
+              <span class="pill">01</span>
+              <div><h4 style="margin:0">Lint &amp; compile</h4><p>SQLFluff + <span class="mono">dbt parse</span></p></div>
+            </div>
+            <div class="step" style="display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: start;">
+              <span class="pill">02</span>
+              <div><h4 style="margin:0">dbt unit tests</h4><p><span class="mono">dbt test --select test_type:unit</span> — fixtures only, no warehouse data</p></div>
+            </div>
+            <div class="step" style="display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: start;">
+              <span class="pill">03</span>
+              <div><h4 style="margin:0">Build to CI dataset</h4><p><span class="mono">dbt build</span> against an ephemeral BQ dataset</p></div>
+            </div>
+            <div class="step" style="display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: start;">
+              <span class="pill">04</span>
+              <div><h4 style="margin:0">Data tests</h4><p>The traditional <span class="mono">not_null</span> / <span class="mono">unique</span> / custom assertions</p></div>
+            </div>
+            <div class="step" style="display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: start;">
+              <span class="pill">05</span>
+              <div><h4 style="margin:0">Promote</h4><p>Approval gate → prod deploy</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer"><span>02 · Pipeline Testing</span><span>Example</span></div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 11 — Section divider: Consumption
+    ========================================================== -->
+    <section data-screen-label="11 Section · Consumption">
+      <div class="section-slide">
+        <div class="eyebrow">Part Three</div>
+        <div class="rule"></div>
+        <h2>The consumption layer for Trading Hub</h2>
+        <p>The actual requirement is small. Let's match the solution to the size of the problem.</p>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 12 — The requirement
+    ========================================================== -->
+    <section data-screen-label="12 Requirement">
+      <div class="eyebrow">Restating the requirement</div>
+      <div class="rule"></div>
+      <h2>What Trading Hub actually needs</h2>
+      <dl class="kvp" style="margin-top: 20px; max-width: 80%;">
+        <dt>Output</dt><dd>A bundle of JSON extracts</dd>
+        <dt>Cadence</dt><dd>Daily</dd>
+        <dt>Recipient</dt><dd>A single 3rd party — Trading Hub</dd>
+        <dt>Volume</dt><dd>Bounded — fits comfortably in memory on a single node</dd>
+        <dt>Source</dt><dd>Curated marts already built by dbt in BigQuery</dd>
+        <dt>SLAs</dt><dd>Daily delivery window, with observability and retry</dd>
+      </dl>
+      <div class="callout">
+        <strong>The honest read:</strong> this is a file generation job, not a consumption platform. An API layer, a semantic layer, or a streaming product would all be over-engineering for what is, in effect, "select from gold, write JSON, ship it."
+      </div>
+      <div class="slide-footer"><span>03 · Consumption</span><span>Requirement</span></div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 13 — Proposal: Polars
+    ========================================================== -->
+    <section data-screen-label="13 Polars proposal">
+      <div class="eyebrow">Proposal</div>
+      <div class="rule"></div>
+      <h2>Python extracts using Polars</h2>
+      <div class="two-col" style="margin-top: 18px;">
+        <div>
+          <h3>Shape of the solution</h3>
+          <ul>
+            <li>A small Python package, one extract definition per JSON output</li>
+            <li>Each definition: a SQL query (or dbt mart reference), a Polars transform, a JSON writer, a destination</li>
+            <li>Orchestrated daily — same Harness pipeline patterns we use elsewhere</li>
+            <li>Schema-validated on the way out (Pydantic / JSON Schema)</li>
+            <li>Idempotent, with a manifest of what was sent and when</li>
+          </ul>
+          <h3 style="margin-top: 22px;">Why Polars</h3>
+          <ul>
+            <li>Fast columnar engine, lazy execution, predictable memory</li>
+            <li>Native reads from BigQuery / Parquet, native JSON writing</li>
+            <li>Tiny dependency surface vs. Spark / Beam / a service framework</li>
+          </ul>
+        </div>
+<pre><code class="language-python">import polars as pl
+from gcp import bq, gcs
+
+def build_positions_extract(run_date):
+    df = (
+        bq.read("gold.positions_eod")
+          .filter(pl.col("as_of") == run_date)
+          .select(["book", "instrument_id", "qty", "pnl_gbp"])
+          .sort("book", "instrument_id")
+    )
+    validate(df, schema=POSITIONS_SCHEMA)
+    payload = df.write_json(row_oriented=True)
+    gcs.write(
+        bucket="tradinghub-outbound",
+        key=f"positions/{run_date}.json",
+        body=payload,
+    )
+    manifest.record("positions", run_date, df.height)</code></pre>
+      </div>
+      <div class="slide-footer"><span>03 · Consumption</span><span>Polars</span></div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 14 — Why not the alternatives
+    ========================================================== -->
+    <section data-screen-label="14 Why not alternatives">
+      <div class="eyebrow">What we're choosing not to build</div>
+      <div class="rule"></div>
+      <h2>And why not</h2>
+      <div class="three-col" style="margin-top: 20px;">
+        <div class="card">
+          <span class="pill warn">Considered</span>
+          <h3>A REST API</h3>
+          <p class="small">Trading Hub doesn't pull — they consume files. Standing up an API gives us auth, scaling, and runtime concerns for zero functional benefit.</p>
+        </div>
+        <div class="card">
+          <span class="pill warn">Considered</span>
+          <h3>A semantic / serving layer</h3>
+          <p class="small">Useful when many consumers ask varied questions. We have one consumer asking the same questions every day.</p>
+        </div>
+        <div class="card">
+          <span class="pill warn">Considered</span>
+          <h3>Spark / Beam job</h3>
+          <p class="small">Volumes don't justify a distributed engine. Polars on a single worker is faster end-to-end and cheaper to operate.</p>
+        </div>
+      </div>
+      <div class="callout"><strong>Right-sized wins:</strong> a few hundred lines of Python, version-controlled with the rest of the platform, deployed via the same Harness templates, observable with the same tooling.</div>
+      <div class="slide-footer"><span>03 · Consumption</span><span>Trade-offs</span></div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 15 — Summary
+    ========================================================== -->
+    <section data-screen-label="15 Summary">
+      <div class="eyebrow">In summary</div>
+      <div class="rule"></div>
+      <h2>Three proposals, one principle</h2>
+      <div class="three-col" style="margin-top: 24px;">
+        <div class="card dark">
+          <span class="pill dark">DQ</span>
+          <h3>dbt-first, DataPlex on top</h3>
+          <ul>
+            <li>dbt tests for everything we build</li>
+            <li>DataPlex for landed / shared / steward-facing</li>
+            <li>Both for regulated gold-tier assets</li>
+          </ul>
+        </div>
+        <div class="card dark">
+          <span class="pill dark">Testing</span>
+          <h3>dbt unit tests in Harness</h3>
+          <ul>
+            <li>Catch logic regressions pre-merge</li>
+            <li>Deterministic fixtures, no warehouse cost</li>
+            <li>One extra stage in the existing pipeline</li>
+          </ul>
+        </div>
+        <div class="card dark">
+          <span class="pill dark">Consumption</span>
+          <h3>Polars-based daily extracts</h3>
+          <ul>
+            <li>Right-sized for a single-consumer, file-based brief</li>
+            <li>Lean, observable, Git-versioned</li>
+            <li>No API or platform overhead to justify</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout" style="margin-top: 28px;">
+        <strong>Common thread:</strong> keep the tools close to the code, keep the surface small, and only reach for platform-scale solutions when the platform-scale problem actually shows up.
+      </div>
+      <div class="slide-footer"><span>Summary</span><span>End</span></div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 16 — Questions
+    ========================================================== -->
+    <section data-screen-label="16 Questions">
+      <div class="title-slide">
+        <div>
+          <div class="eyebrow">Open floor</div>
+          <div class="rule"></div>
+          <h1>Questions, challenges, and what we missed.</h1>
+          <p>Particularly interested in: are there DataPlex features we'd be giving up by leaning on dbt? Anything Trading Hub will ask for next that the Polars approach can't grow into?</p>
+        </div>
+        <div class="title-meta">
+          <span>Next<strong>Spike: unit-test stage in Harness</strong></span>
+          <span>Then<strong>POC: one Polars extract end-to-end</strong></span>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- reveal.js engine -->
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    history: true,
+    controls: true,
+    progress: true,
+    slideNumber: 'c/t',
+    transition: 'slide',
+    width: 1280,
+    height: 800,
+    margin: 0.04,
+    plugins: [ RevealHighlight ]
+  });
+</script>
+</body>
+</html>
