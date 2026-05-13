@@ -43,9 +43,11 @@
   .reveal .slides { text-align: left; }
   .reveal .slides section { padding: 48px 64px; box-sizing: border-box; font-size: 18px; }
   /* Title + section-divider slides paint the whole frame, so the
-     outer section padding would create a thin un-tinted border. Reset it. */
+     outer section padding would create a thin un-tinted border. Reset it
+     and force full slide height so Reveal's vertical centering doesn't
+     leave white space above/below the tinted fill. */
   .reveal .slides section:has(> .title-slide),
-  .reveal .slides section:has(> .section-slide) { padding: 0; }
+  .reveal .slides section:has(> .section-slide) { padding: 0; height: 800px; }
 
   .reveal h1, .reveal h2, .reveal h3, .reveal h4 {
     font-family: 'Inter', system-ui, sans-serif;
@@ -55,7 +57,10 @@
     font-weight: 700;
     line-height: 1.1;
     margin: 0 0 0.4em;
+    word-break: normal;
+    overflow-wrap: break-word;
   }
+  .reveal h3 .mono, .reveal h4 .mono { white-space: nowrap; }
   .reveal h1 { font-size: 3.2rem; }
   .reveal h2 { font-size: 2.2rem; }
   .reveal h3 { font-size: 1.4rem; }
@@ -116,6 +121,7 @@
     padding: 3px 9px; border-radius: 999px;
     background: var(--green-100); color: var(--green-800);
     font-weight: 500;
+    white-space: nowrap;
   }
   .pill.dark { background: rgba(255,255,255,0.1); color: #cfe2d8; }
   .pill.warn { background: #f8ecd9; color: var(--warn); }
@@ -266,7 +272,7 @@
           <p>A proposal covering dbt vs DataPlex for DQ, dbt unit testing in Harness for pipeline validation, and a lightweight Polars-based extract layer for Trading Hub.</p>
         </div>
         <div class="title-meta">
-          <span>Audience<strong>Data Platform &amp; Architecture</strong></span>
+          <span>Audience<strong>Engineering &amp; CJMs</strong></span>
           <span>Date<strong>May 2026</strong></span>
           <span>Status<strong>Proposal · for discussion</strong></span>
         </div>
@@ -416,9 +422,45 @@
     </section>
 
     <!-- =========================================================
-         SLIDE 8 — Section divider: Testing
+         SLIDE 8 — Running dbt tests incrementally in production
     ========================================================== -->
-    <section data-screen-label="08 Section · Pipeline testing">
+    <section data-screen-label="08 Incremental DQ in prod">
+      <div class="eyebrow">Operating DQ at scale</div>
+      <div class="rule"></div>
+      <h2>Running dbt tests incrementally in production</h2>
+      <p style="margin-bottom: 14px; max-width: 80ch;">Scanning the whole table on every run means our DQ bill grows linearly with history. Tests should scope to the same window the model processes — with a slower full sweep as a safety net.</p>
+      <div class="two-col">
+        <div class="card tinted">
+          <span class="pill">Schema tests</span>
+          <h3 style="margin: 8px 0 8px;">Scope with <span class="mono">where</span></h3>
+          <ul>
+            <li>Built-in tests take a <span class="mono">where</span> config — pin them to the model's incremental window via <span class="mono">var('test_window_days')</span></li>
+            <li><span class="mono">unique</span> needs care: a duplicate today may already exist in history. Tight window <em>plus</em> a weekly full sweep</li>
+          </ul>
+        </div>
+        <div class="card tinted">
+          <span class="pill">Complex SQL checks</span>
+          <h3 style="margin: 8px 0 8px;">Parameterise the macro</h3>
+          <ul>
+            <li>Macros accept a date-bound predicate; filters push down to the partition column so BigQuery prunes</li>
+            <li>Cross-row checks (reconciliations, balances) run on the delta plus a small overlap for late arrivals</li>
+          </ul>
+        </div>
+      </div>
+<pre style="margin-top: 14px; font-size: 0.78rem; padding: 14px 18px;"><code>columns:
+  - name: trade_id
+    tests:
+      - not_null: { config: { where: "as_of &gt;= date_sub(current_date(), interval {{ var('test_window_days') }} day)" } }
+      - unique:   { config: { where: "as_of &gt;= date_sub(current_date(), interval {{ var('test_window_days') }} day)" } }   # daily
+      - unique:   { config: { severity: 'warn', tags: ['full_sweep'] } }                                                # weekly</code></pre>
+      <div class="callout" style="margin-top: 12px; padding: 10px 16px;"><strong>Cadence:</strong> our production pipelines are a set of Cloud Composer DAGs — the daily orchestration DAG runs the dbt build with <span class="mono">incremental</span> tests; a separate weekly DAG runs the <span class="mono">full_sweep</span> tag against the whole table. Cost stays roughly flat as history accumulates. (Harness only ships the code — it doesn't run the production tests.)</div>
+      <div class="slide-footer"><span>01 · Data Quality</span><span>Incremental tests</span></div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 9 — Section divider: Testing
+    ========================================================== -->
+    <section data-screen-label="09 Section · Pipeline testing">
       <div class="section-slide">
         <div class="eyebrow">Part Two</div>
         <div class="rule"></div>
@@ -430,7 +472,7 @@
     <!-- =========================================================
          SLIDE 9 — dbt unit tests in Harness
     ========================================================== -->
-    <section data-screen-label="09 dbt unit tests in Harness">
+    <section data-screen-label="10 dbt unit tests in Harness">
       <div class="eyebrow">Proposal</div>
       <div class="rule"></div>
       <h2>dbt unit tests, executed in Harness</h2>
@@ -458,7 +500,7 @@
     <!-- =========================================================
          SLIDE 10 — Example unit test + Harness flow
     ========================================================== -->
-    <section data-screen-label="10 Unit test example">
+    <section data-screen-label="11 Unit test example">
       <div class="eyebrow">What it looks like</div>
       <div class="rule"></div>
       <h2>A unit test, and where it sits in Harness</h2>
@@ -498,11 +540,11 @@
             </div>
             <div class="step" style="display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: start;">
               <span class="pill">04</span>
-              <div><h4 style="margin:0">Data tests</h4><p>The traditional <span class="mono">not_null</span> / <span class="mono">unique</span> / custom assertions</p></div>
+              <div><h4 style="margin:0">CI data tests</h4><p>The traditional <span class="mono">not_null</span> / <span class="mono">unique</span> / custom assertions, on the ephemeral dataset</p></div>
             </div>
             <div class="step" style="display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: start;">
               <span class="pill">05</span>
-              <div><h4 style="margin:0">Promote</h4><p>Approval gate → prod deploy</p></div>
+              <div><h4 style="margin:0">Promote</h4><p>Approval gate → the Composer DAGs pick up the new artifact for the next prod run</p></div>
             </div>
           </div>
         </div>
@@ -511,9 +553,146 @@
     </section>
 
     <!-- =========================================================
-         SLIDE 11 — Section divider: Consumption
+         SLIDE 12 — Test reports from Harness
     ========================================================== -->
-    <section data-screen-label="11 Section · Consumption">
+    <section data-screen-label="12 Test reports in Harness">
+      <div class="eyebrow">Reporting</div>
+      <div class="rule"></div>
+      <h2>Automated test reports — CI and production</h2>
+      <p class="lede" style="margin-bottom: 22px;">Both dbt and pytest produce machine-readable results. Harness picks them up natively for CI; Composer publishes the same artifacts for production runs. One reporting pattern, two surfaces.</p>
+      <div class="two-col">
+        <div class="card tinted">
+          <span class="pill">CI · Harness</span>
+          <h3>dbt &amp; pytest → JUnit → Test Intelligence</h3>
+          <ul>
+            <li>Every <span class="mono">dbt build</span> writes <span class="mono">target/run_results.json</span>; a post-step (<span class="mono">dbt-junitxml</span>) converts to JUnit XML</li>
+            <li><span class="mono">pytest --junitxml=…</span> is native; <span class="mono">coverage.py</span> → cobertura.xml</li>
+            <li>Harness <span class="mono">Test Intelligence</span> ingests both — pass/fail, durations, failing-test history per pipeline, click-through to the failure</li>
+            <li>Covers unit tests (dbt + Python) and CI data tests run on the ephemeral dataset</li>
+          </ul>
+        </div>
+        <div class="card tinted">
+          <span class="pill">Prod · Composer</span>
+          <h3>Same artifacts, different host</h3>
+          <ul>
+            <li>The set of production Composer DAGs (daily, weekly, ad-hoc per pipeline) each run dbt and emit the same <span class="mono">run_results.json</span> + JUnit XML</li>
+            <li>Artifacts pushed to GCS and surfaced in a Looker / BQ dashboard — pass/fail history per model, per test, per day</li>
+            <li>Cloud Logging captures the run; on failure, structured logs flow to a Dynatrace ingest agent that drives a ServiceNow ticket via the existing connector (next slide)</li>
+            <li>Same parsing library used in both Harness and Composer post-steps — no divergence</li>
+          </ul>
+        </div>
+      </div>
+      <div class="slide-footer"><span>02 · Pipeline Testing</span><span>Reporting</span></div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 13 — Jira stories for CI defects
+    ========================================================== -->
+    <section data-screen-label="13 Jira stories (CI)">
+      <div class="eyebrow">CI path · pre-merge / pre-release</div>
+      <div class="rule"></div>
+      <h2>Semi-automated Jira <em>stories</em> for CI defects</h2>
+      <p style="margin-bottom: 14px; max-width: 80ch;">When a test fails in Harness — on a PR or a release branch — the pipeline drafts a Jira story (not a bug, per org policy) and a human approves before it lands. Production failures take a different route (next slide).</p>
+      <div class="two-col">
+        <div>
+          <h3 style="margin-bottom: 8px;">What gets attached automatically</h3>
+          <ul>
+            <li><strong>Title</strong> — from the test id (e.g. <span class="mono">not_null_fct_trade_pnl_trade_id</span>)</li>
+            <li><strong>Owner</strong> — model <span class="mono">meta.owner</span> or CODEOWNERS</li>
+            <li><strong>Failure detail</strong> — row sample, threshold, compiled SQL</li>
+            <li><strong>Run context</strong> — Harness run link, commit SHA, branch, dataset, timestamp</li>
+          </ul>
+          <h3 style="margin-top: 14px; margin-bottom: 8px;">Guardrails</h3>
+          <ul>
+            <li><strong>Dedupe</strong> — open story with matching <span class="mono">test-id</span> label gets a comment, not a duplicate</li>
+            <li><strong>Human gate</strong> — Teams card with approve / dismiss; issue type pinned to <span class="mono">Story</span>, never <span class="mono">Bug</span></li>
+          </ul>
+        </div>
+        <div>
+          <h3 style="margin-bottom: 8px;">The flow</h3>
+          <div class="flow" style="grid-template-columns: 1fr; gap: 8px; margin-top: 0;">
+            <div class="step" style="display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: start; padding: 10px 14px;">
+              <span class="pill">01</span>
+              <div><h4 style="margin:0">CI test fails</h4><p>dbt or pytest exits non-zero in Harness; JUnit XML captured</p></div>
+            </div>
+            <div class="step" style="display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: start; padding: 10px 14px;">
+              <span class="pill">02</span>
+              <div><h4 style="margin:0">Harness post-step</h4><p>Parses failures, looks up owner, builds payload, checks Jira for dupes</p></div>
+            </div>
+            <div class="step" style="display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: start; padding: 10px 14px;">
+              <span class="pill">03</span>
+              <div><h4 style="margin:0">Human review</h4><p>Teams card — approve, dismiss, or edit</p></div>
+            </div>
+            <div class="step" style="display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: start; padding: 10px 14px;">
+              <span class="pill">04</span>
+              <div><h4 style="margin:0">Create / comment</h4><p>New <span class="mono">Story</span>, or new-run-link comment on the existing one</p></div>
+            </div>
+            <div class="step" style="display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: start; padding: 10px 14px;">
+              <span class="pill">05</span>
+              <div><h4 style="margin:0">Auto-close</h4><p>After N consecutive passes, transition to <span class="mono">Resolved — auto</span></p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer"><span>02 · Pipeline Testing</span><span>CI · Jira</span></div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 14 — Dynatrace → ServiceNow for production
+    ========================================================== -->
+    <section data-screen-label="14 Dynatrace → ServiceNow (prod)">
+      <div class="eyebrow">Prod path · live pipelines</div>
+      <div class="rule"></div>
+      <h2>Production failures → Dynatrace → ServiceNow</h2>
+      <p style="margin-bottom: 14px; max-width: 80ch;">A failing test or task in a production Composer DAG is an operational event, not a backlog item. We route it through the channel ops already watches.</p>
+      <div class="two-col">
+        <div>
+          <h3 style="margin-bottom: 8px;">What we need to build</h3>
+          <ul>
+            <li><strong>A Dynatrace ingest agent</strong> for Composer / dbt — ships structured logs and <span class="mono">run_results.json</span> from failed tasks</li>
+            <li><strong>A pattern library</strong> in Dynatrace — known failure classes (schema test fail, source freshness breach, BQ quota, transient retryable) mapped to severities</li>
+            <li><em>Nothing else.</em> The Dynatrace ⇄ ServiceNow connector already exists and is in use elsewhere in the bank</li>
+          </ul>
+          <h3 style="margin-top: 14px; margin-bottom: 8px;">Why this split</h3>
+          <ul>
+            <li><strong>Right team, right tool</strong> — support team triages in ServiceNow; devs aren't the first responders for a live data outage</li>
+            <li><strong>Severity-aware</strong> — transient / known-flaky failures stay as Dynatrace events; only matched-severity patterns open a ticket</li>
+            <li><strong>If it's a code defect</strong>, support escalates and devs raise a Jira story themselves — same template as the CI path</li>
+          </ul>
+        </div>
+        <div>
+          <h3 style="margin-bottom: 8px;">The flow</h3>
+          <div class="flow" style="grid-template-columns: 1fr; gap: 8px; margin-top: 0;">
+            <div class="step" style="display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: start; padding: 10px 14px;">
+              <span class="pill">01</span>
+              <div><h4 style="margin:0">Prod task fails</h4><p>A Composer task or dbt test fails inside a production DAG; structured logs + <span class="mono">run_results.json</span> emitted</p></div>
+            </div>
+            <div class="step" style="display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: start; padding: 10px 14px;">
+              <span class="pill">02</span>
+              <div><h4 style="margin:0">Dynatrace ingest</h4><p>Our agent ships the logs to Dynatrace and tags them with DAG, model, environment</p></div>
+            </div>
+            <div class="step" style="display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: start; padding: 10px 14px;">
+              <span class="pill">03</span>
+              <div><h4 style="margin:0">Pattern match</h4><p>Dynatrace evaluates against the rule library; only matched, in-severity patterns proceed</p></div>
+            </div>
+            <div class="step" style="display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: start; padding: 10px 14px;">
+              <span class="pill">04</span>
+              <div><h4 style="margin:0">ServiceNow ticket</h4><p>Existing Dynatrace → ServiceNow connector raises a ticket for the support team, pre-filled with the captured context</p></div>
+            </div>
+            <div class="step" style="display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: start; padding: 10px 14px;">
+              <span class="pill">05</span>
+              <div><h4 style="margin:0">Auto-resolve</h4><p>Recovered DAG runs close the Dynatrace problem and the linked ServiceNow ticket via the same connector</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer"><span>02 · Pipeline Testing</span><span>Prod · Dynatrace → ServiceNow</span></div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 15 — Section divider: Consumption
+    ========================================================== -->
+    <section data-screen-label="15 Section · Consumption">
       <div class="section-slide">
         <div class="eyebrow">Part Three</div>
         <div class="rule"></div>
@@ -525,7 +704,7 @@
     <!-- =========================================================
          SLIDE 12 — The requirement
     ========================================================== -->
-    <section data-screen-label="12 Requirement">
+    <section data-screen-label="16 Requirement">
       <div class="eyebrow">Restating the requirement</div>
       <div class="rule"></div>
       <h2>What Trading Hub actually needs</h2>
@@ -546,7 +725,7 @@
     <!-- =========================================================
          SLIDE 13 — Proposal: Polars
     ========================================================== -->
-    <section data-screen-label="13 Polars proposal">
+    <section data-screen-label="17 Polars proposal">
       <div class="eyebrow">Proposal</div>
       <div class="rule"></div>
       <h2>Python extracts using Polars</h2>
@@ -556,7 +735,7 @@
           <ul>
             <li>A small Python package, one extract definition per JSON output</li>
             <li>Each definition: a SQL query (or dbt mart reference), a Polars transform, a JSON writer, a destination</li>
-            <li>Orchestrated daily — same Harness pipeline patterns we use elsewhere</li>
+            <li>Orchestrated by one of our production Composer DAGs (alongside the dbt build DAGs), deployed via Harness CI/CD like the rest of the platform</li>
             <li>Schema-validated on the way out (Pydantic / JSON Schema)</li>
             <li>Idempotent, with a manifest of what was sent and when</li>
           </ul>
@@ -592,7 +771,7 @@ def build_positions_extract(run_date):
     <!-- =========================================================
          SLIDE 14 — Why not the alternatives
     ========================================================== -->
-    <section data-screen-label="14 Why not alternatives">
+    <section data-screen-label="18 Why not alternatives">
       <div class="eyebrow">What we're choosing not to build</div>
       <div class="rule"></div>
       <h2>And why not</h2>
@@ -620,7 +799,7 @@ def build_positions_extract(run_date):
     <!-- =========================================================
          SLIDE 15 — Summary
     ========================================================== -->
-    <section data-screen-label="15 Summary">
+    <section data-screen-label="19 Summary">
       <div class="eyebrow">In summary</div>
       <div class="rule"></div>
       <h2>Three proposals, one principle</h2>
@@ -662,7 +841,7 @@ def build_positions_extract(run_date):
     <!-- =========================================================
          SLIDE 16 — Questions
     ========================================================== -->
-    <section data-screen-label="16 Questions">
+    <section data-screen-label="20 Questions">
       <div class="title-slide">
         <div>
           <div class="eyebrow">Open floor</div>
