@@ -1,0 +1,982 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=1280, initial-scale=1" />
+<title>Managing reference data in dbt pipelines</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/monokai.css" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --green-900: #003824;
+    --green-800: #005a3c;
+    --green-700: #006a4d;
+    --green-600: #1a8060;
+    --green-500: #2f9a78;
+    --green-100: #e6f1ec;
+    --green-050: #f3f8f5;
+    --ink:       #14201b;
+    --ink-soft:  #3b4a44;
+    --line:      #d8e3dd;
+    --paper:     #ffffff;
+    --warn:      #b5651d;
+    --accent:    #9ec5b3;
+  }
+
+  .reveal { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; color: var(--ink); background: var(--paper); }
+  .reveal .slides { text-align: left; }
+  .reveal .slides section { padding: 48px 64px; font-size: 18px; line-height: 1.5; font-weight: 400; height: 800px; box-sizing: border-box; }
+
+  .reveal h1, .reveal h2, .reveal h3, .reveal h4 {
+    font-family: 'Inter', sans-serif;
+    color: var(--green-900);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    text-transform: none;
+    margin: 0 0 0.4em 0;
+    font-weight: 700;
+  }
+  .reveal h1 { font-size: 56px; font-weight: 800; }
+  .reveal h2 { font-size: 38px; }
+  .reveal h3 { font-size: 22px; }
+  .reveal h4 { font-size: 18px; }
+  .reveal p { margin: 0 0 0.8em 0; color: var(--ink); }
+  .reveal strong { font-weight: 600; color: var(--green-900); }
+  .reveal a { color: var(--green-700); }
+
+  /* Eyebrow + rule */
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--green-700);
+    margin: 0 0 8px 0;
+  }
+  .eyebrow-rule {
+    width: 36px;
+    height: 2px;
+    background: var(--green-700);
+    margin: 0 0 18px 0;
+    border: 0;
+  }
+
+  /* Lists with dash bullets */
+  .reveal ul { list-style: none; padding-left: 0; margin: 0 0 0.8em 0; }
+  .reveal ul li {
+    position: relative;
+    padding-left: 1.1em;
+    margin-bottom: 0.45em;
+  }
+  .reveal ul li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.62em;
+    width: 12px;
+    height: 2px;
+    background: var(--green-700);
+  }
+  .reveal ol { padding-left: 1.2em; }
+  .reveal ol li { margin-bottom: 0.4em; }
+
+  /* Code */
+  .reveal pre {
+    width: 100%;
+    box-shadow: 0 12px 32px -16px rgba(0, 56, 36, 0.35);
+    margin: 14px 0;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .reveal pre code {
+    background: var(--green-900);
+    color: #e8efe9;
+    border-radius: 10px;
+    padding: 18px 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    line-height: 1.55;
+    display: block;
+    max-height: none;
+  }
+  .reveal code { font-family: 'JetBrains Mono', monospace; }
+
+  /* Grids */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 22px; }
+
+  /* Cards */
+  .card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 20px 22px;
+  }
+  .card.tinted { background: var(--green-050); border-color: var(--green-100); }
+  .card.dark { background: var(--green-900); color: #e8efe9; border-color: var(--green-900); }
+  .card.dark h3, .card.dark h4 { color: #fff; }
+  .card.dark .eyebrow { color: var(--accent); }
+  .card.dark .eyebrow-rule { background: var(--accent); }
+  .card.dark p, .card.dark li { color: #cfe0d8; }
+  .card.dark ul li::before { background: var(--accent); }
+  .card.dark strong { color: #fff; }
+  .card h3 { font-size: 20px; margin-bottom: 8px; }
+  .card h4 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.08em; font-family: 'JetBrains Mono', monospace; font-weight: 500; color: var(--green-700); margin-bottom: 10px; }
+
+  /* Pills */
+  .pill {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 4px 10px;
+    background: var(--green-100);
+    color: var(--green-800);
+    border-radius: 999px;
+    white-space: nowrap;
+    line-height: 1.4;
+  }
+  .pill.dark { background: var(--green-900); color: #fff; }
+  .pill.warn { background: #f5e6d4; color: var(--warn); }
+
+  /* Compare table */
+  .compare {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+    border-bottom: 2px solid var(--green-700);
+  }
+  .compare th, .compare td {
+    text-align: left;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  .compare thead th {
+    background: var(--green-050);
+    color: var(--green-900);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 500;
+  }
+  .compare tbody tr td:first-child { font-weight: 600; color: var(--green-900); }
+
+  /* Decision rows */
+  .decision { display: grid; grid-template-columns: max-content 1fr; gap: 14px 22px; align-items: start; }
+  .verdict {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 5px 11px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .verdict.seed { background: var(--green-100); color: var(--green-800); }
+  .verdict.bq { background: #d8eadf; color: var(--green-900); }
+  .verdict.both { background: var(--green-900); color: #fff; }
+
+  /* Flow */
+  .flow {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    align-items: stretch;
+    margin: 8px 0 18px 0;
+  }
+  .flow .step {
+    position: relative;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 14px;
+  }
+  .flow .step .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--green-700);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .flow .step h4 { font-size: 14px; color: var(--green-900); margin: 0 0 4px 0; text-transform: none; letter-spacing: -0.01em; font-family: 'Inter', sans-serif; font-weight: 600; }
+  .flow .step p { font-size: 13px; margin: 0; color: var(--ink-soft); line-height: 1.4; }
+  .flow .step:not(:last-child)::after {
+    content: "›";
+    position: absolute;
+    right: -10px;
+    top: 50%;
+    transform: translate(50%, -50%);
+    color: var(--green-600);
+    font-size: 22px;
+    font-weight: 600;
+    z-index: 2;
+    background: var(--paper);
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+    text-align: center;
+    border-radius: 50%;
+  }
+
+  /* Callout */
+  .callout {
+    background: var(--green-050);
+    border-left: 4px solid var(--green-700);
+    padding: 14px 18px;
+    border-radius: 4px;
+    margin: 14px 0;
+    font-size: 15px;
+    color: var(--ink);
+  }
+  .callout strong { color: var(--green-900); }
+
+  /* Key-value pairs */
+  .kvp {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 8px 24px;
+    margin: 0;
+  }
+  .kvp dt {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--green-700);
+    font-weight: 500;
+    padding-top: 2px;
+  }
+  .kvp dd { margin: 0; color: var(--ink); font-size: 15px; }
+
+  /* Inline mono */
+  .mono { font-family: 'JetBrains Mono', monospace; color: var(--green-800); font-size: 0.94em; }
+
+  /* Slide footer */
+  .slide-footer {
+    position: absolute;
+    left: 64px;
+    right: 64px;
+    bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* Title slide */
+  section.title { padding: 0 !important; height: 800px; }
+  .title-slide {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--green-900) 0%, var(--green-700) 100%);
+    color: #fff;
+    padding: 72px 80px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .title-slide .eyebrow { color: var(--accent); }
+  .title-slide .eyebrow-rule { background: var(--accent); }
+  .title-slide h1 { color: #fff; max-width: 18ch; }
+  .title-slide .title-sub { color: rgba(255,255,255,0.78); font-size: 20px; max-width: 60ch; margin-top: 12px; }
+  .title-meta {
+    display: flex;
+    gap: 56px;
+    border-top: 1px solid rgba(255,255,255,0.18);
+    padding-top: 20px;
+  }
+  .title-meta .item .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 4px;
+  }
+  .title-meta .item .val {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  /* Section divider */
+  section.section { padding: 0 !important; height: 800px; }
+  .section-slide {
+    width: 100%;
+    height: 100%;
+    background: var(--green-900);
+    color: #fff;
+    padding: 80px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .section-slide .eyebrow { color: var(--accent); }
+  .section-slide .eyebrow-rule { background: var(--accent); width: 48px; height: 2px; }
+  .section-slide h2 { color: #fff; font-size: 56px; max-width: 22ch; }
+  .section-slide .section-sub { color: rgba(255,255,255,0.72); font-size: 18px; max-width: 60ch; margin-top: 8px; }
+
+  /* Tier badges (title slide anchor) */
+  .tier-badges {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-top: 28px;
+    max-width: 760px;
+  }
+  .tier-badge {
+    border: 1px solid rgba(255,255,255,0.22);
+    border-radius: 14px;
+    padding: 18px 20px;
+    background: rgba(255,255,255,0.04);
+  }
+  .tier-badge .t-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .tier-badge .t-name { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .tier-badge .t-ex { font-size: 13px; color: rgba(255,255,255,0.7); font-family: 'JetBrains Mono', monospace; }
+
+  /* Reveal progress + controls tinted */
+  .reveal .progress { color: var(--green-700); }
+  .reveal .controls { color: var(--green-700); }
+  .reveal .slide-number { font-family: 'JetBrains Mono', monospace; background: transparent; color: var(--green-700); }
+</style>
+</head>
+<body>
+<div class="reveal">
+  <div class="slides">
+<!-- SLIDE 1 — Title -->
+<section class="title" data-screen-label="01 Title">
+  <div class="title-slide">
+    <div>
+      <p class="eyebrow">DATA PLATFORM · ENGINEERING NOTE</p>
+      <hr class="eyebrow-rule" />
+      <h1>Managing reference data in dbt pipelines</h1>
+      <p class="title-sub">One Python loader, one DAG, one convention. CSV in, BigQuery out, history kept in-table. Works for ops updates and for standing up new environments — same code path.</p>
+      <div class="tier-badges" style="grid-template-columns: repeat(3, 1fr); max-width: 820px;">
+        <div class="tier-badge">
+          <div class="t-num">Convention</div>
+          <div class="t-name">static_ref_*</div>
+          <div class="t-ex">filename · table · schema</div>
+        </div>
+        <div class="tier-badge">
+          <div class="t-num">Two doors</div>
+          <div class="t-name">defaults/ · inbox/</div>
+          <div class="t-ex">deploy-time · ops-driven</div>
+        </div>
+        <div class="tier-badge">
+          <div class="t-num">One loader</div>
+          <div class="t-name">Polars → BQ</div>
+          <div class="t-ex">validate · close · insert</div>
+        </div>
+      </div>
+    </div>
+    <div class="title-meta">
+      <div class="item"><span class="label">Author</span><span class="val">Data Platform</span></div>
+      <div class="item"><span class="label">Audience</span><span class="val">Analytics Eng · Ops</span></div>
+      <div class="item"><span class="label">Stack</span><span class="val">dbt · BigQuery · Composer</span></div>
+      <div class="item"><span class="label">Version</span><span class="val">v1.0</span></div>
+    </div>
+  </div>
+</section>
+<!-- SLIDE 2 — The problem -->
+<section data-screen-label="02 The problem">
+  <p class="eyebrow">PROBLEM · BASELINE</p>
+  <hr class="eyebrow-rule" />
+  <h2>Two needs that pull in opposite directions</h2>
+  <p style="max-width: 86ch; color: var(--ink-soft); font-size: 17px;">
+    Reference data has to serve <strong>two audiences</strong> with very different expectations — and the obvious tools each only solve half the problem.
+  </p>
+  <div class="two-col" style="margin-top: 18px;">
+    <div class="card tinted">
+      <div style="display: flex; gap: 8px; margin-bottom: 6px;"><span class="pill">Need 1</span></div>
+      <h3>Day-to-day updates by ops</h3>
+      <p style="color: var(--ink-soft); font-size: 14px;">Traders move desks, exchanges add holidays, venues retire. These edits are <strong>routine</strong> and <strong>ops-owned</strong>.</p>
+      <ul style="font-size: 14px;">
+        <li>Must not require a git PR or an engineer.</li>
+        <li>Must be auditable — who changed what, when.</li>
+        <li>Must be reversible — history queryable in SQL.</li>
+      </ul>
+      <p style="font-size: 13px; color: var(--ink-soft); margin-top: 6px;">
+        <span class="mono">dbt seed</span> fails this — every edit is a deploy event.
+      </p>
+    </div>
+    <div class="card">
+      <div style="display: flex; gap: 8px; margin-bottom: 6px;"><span class="pill">Need 2</span></div>
+      <h3>Standing up new environments</h3>
+      <p style="color: var(--ink-soft); font-size: 14px;">A fresh dev / UAT / DR environment must come up with <strong>all reference data populated</strong> — the pipeline can't run without it.</p>
+      <ul style="font-size: 14px;">
+        <li>No human-in-the-loop on day one.</li>
+        <li>Defaults must ship with the code.</li>
+        <li>Re-baseline must be one command, not many.</li>
+      </ul>
+      <p style="font-size: 13px; color: var(--ink-soft); margin-top: 6px;">
+        Pure ad-hoc uploads fail this — nothing seeds a new env.
+      </p>
+    </div>
+  </div>
+  <div class="callout" style="margin-top: 18px; font-size: 15px;">
+    <strong>What we want.</strong> One mechanism that satisfies both — ops can edit at runtime, and deploys can provision a new environment from scratch — without two ingestion patterns to maintain.
+  </div>
+  <div class="slide-footer">
+    <span>Managing reference data</span>
+    <span>Problem · 02 / 11</span>
+  </div>
+</section>
+
+<!-- SLIDE 3 — One pipeline, two doors -->
+<section data-screen-label="03 One pipeline, two doors">
+  <p class="eyebrow">SHAPE · ONE PIPELINE</p>
+  <hr class="eyebrow-rule" />
+  <h2>One loader. Two doors. Same code path.</h2>
+  <p style="max-width: 86ch; color: var(--ink-soft); font-size: 17px;">
+    Every reference table is loaded by the same Python module, regardless of who triggered it. The only thing that differs is where the CSV came from.
+  </p>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 18px;">
+    <div class="card">
+      <div style="display: flex; gap: 8px; margin-bottom: 6px;"><span class="pill">Door 1</span><span class="pill">deploy-time</span></div>
+      <h3>defaults/</h3>
+      <p style="color: var(--ink-soft); font-size: 14px;">Repo holds a baseline CSV for every <span class="mono">static_ref_*</span> table. Harness mirrors them to <span class="mono">gs://ref/defaults/&lt;env&gt;/</span> on every deploy.</p>
+      <ul style="font-size: 14px;">
+        <li>Always current with the shipped code.</li>
+        <li>Loaded on first run in a new environment.</li>
+        <li>Schema additions can ship a starter CSV alongside.</li>
+      </ul>
+    </div>
+    <div class="card tinted">
+      <div style="display: flex; gap: 8px; margin-bottom: 6px;"><span class="pill">Door 2</span><span class="pill">ops-driven</span></div>
+      <h3>inbox/</h3>
+      <p style="color: var(--ink-soft); font-size: 14px;">Ops drop a CSV into <span class="mono">gs://ref/inbox/</span> when they need to change something. Filename matches the target table.</p>
+      <ul style="font-size: 14px;">
+        <li>No git PR, no engineer in the loop.</li>
+        <li>Beats the default if both are present.</li>
+        <li>Triggered manually — promotion is a decision.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout" style="margin-top: 18px; font-size: 15px;">
+    <strong>The split is by intent, not by data tier.</strong> <em>Where a CSV came from</em> tells you what the loader should do; <em>what's in it</em> doesn't.
+  </div>
+
+  <div class="slide-footer">
+    <span>Managing reference data</span>
+    <span>Shape · 03 / 11</span>
+  </div>
+</section>
+
+<!-- SLIDE 4 — The convention -->
+<section data-screen-label="04 The convention">
+  <p class="eyebrow">CONVENTION · NAMING</p>
+  <hr class="eyebrow-rule" />
+  <h2>One name, three artifacts</h2>
+  <p style="max-width: 86ch; color: var(--ink-soft); font-size: 17px;">
+    Every ref table is a <span class="mono">static_ref_*</span> in BigQuery and is fully described by three same-named artifacts. The convention <em>is</em> the registry — no per-table code, no central config.
+  </p>
+  <p style="max-width: 86ch; color: var(--ink-soft); font-size: 13px; margin-top: -4px;">
+    <span class="mono">trader_id_to_name</span> is illustrative — the final prefix, paths, and naming style will be agreed at implementation; the structure stays the same.
+  </p>
+
+  <div class="two-col" style="margin-top: 18px;">
+    <div class="card">
+      <h4>Per table — three files in the repo</h4>
+<pre style="margin-top: 4px;"><code data-trim data-noescape class="language-plaintext" style="font-size: 12px; line-height: 1.5; padding: 14px 18px;">data-pipeline/                  ← this repo
+  ref_defaults/
+    trader_id_to_name.csv          ← baseline data
+    trader_id_to_name.schema.yml   ← semantic rules
+
+platform-infra/                 ← separate Terraform repo
+  bigquery/ref/
+    static_ref_trader_id_to_name.tf  ← structural schema
+</code></pre>
+      <p style="font-size: 13px; color: var(--ink-soft); margin-top: 6px;">Adding a ref table is a coordinated change — a Terraform PR for the table, a pipeline PR for the CSV + schema yaml. CI lints them against each other.</p>
+    </div>
+    <div class="card tinted">
+      <h4>The mapping is mechanical</h4>
+      <dl class="kvp">
+        <dt>CSV name</dt><dd><span class="mono">trader_id_to_name.csv</span></dd>
+        <dt>BQ table</dt><dd><span class="mono">analytics.ref.static_ref_trader_id_to_name</span></dd>
+        <dt>Schema</dt><dd><span class="mono">trader_id_to_name.schema.yml</span></dd>
+        <dt>Terraform</dt><dd><span class="mono">static_ref_trader_id_to_name.tf</span></dd>
+        <dt>dbt source</dt><dd><span class="mono">{{ source('ref', 'static_ref_trader_id_to_name') }}</span></dd>
+      </dl>
+      <div class="callout" style="margin-top: 12px; font-size: 13px;">
+        <strong>The warehouse is the catalog.</strong> The loader discovers what to load by listing <span class="mono">static_ref_*</span> tables in BQ — no registry file to keep in sync.
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <span>Managing reference data</span>
+    <span>Convention · 04 / 11</span>
+  </div>
+</section>
+
+<!-- SLIDE 5 — Two-layer schema -->
+<section data-screen-label="05 Two-layer schema" style="padding: 36px 64px;">
+  <p class="eyebrow">SCHEMA · TWO LAYERS</p>
+  <hr class="eyebrow-rule" />
+  <h2 style="margin-bottom: 0.25em;">Terraform enforces structure. YAML enforces semantics.</h2>
+  <p style="max-width: 92ch; color: var(--ink-soft); font-size: 15px; margin-bottom: 6px;">
+    BigQuery enforces column types and <span class="mono">NOT NULL</span>. It does <em>not</em> enforce <span class="mono">UNIQUE</span>, <span class="mono">CHECK</span>, or row counts. We put each rule where it can actually be enforced — and CI lints the two for drift.
+  </p>
+
+  <div class="two-col" style="margin-top: 8px;">
+    <div>
+      <div style="display: flex; gap: 8px; margin-bottom: 6px;"><span class="pill">Layer 1</span><span class="pill">Terraform</span><span class="mono">static_ref_trader_id_to_name.tf</span></div>
+<pre style="margin-top: 0;"><code data-trim data-noescape class="language-yaml" style="font-size: 11.5px; line-height: 1.5; padding: 12px 16px;">resource "google_bigquery_table" "static_ref_trader_id_to_name" {
+  dataset_id = "ref"
+  table_id   = "static_ref_trader_id_to_name"
+  schema = jsonencode([
+    { name = "trader_id",  type = "STRING",    mode = "REQUIRED" },
+    { name = "name",       type = "STRING",    mode = "REQUIRED" },
+    { name = "valid_from", type = "TIMESTAMP", mode = "REQUIRED" },
+    { name = "valid_to",   type = "TIMESTAMP", mode = "NULLABLE" },
+  ])
+  time_partitioning { type = "DAY", field = "valid_from" }
+  clustering = ["trader_id"]
+}
+</code></pre>
+      <p style="font-size: 13px; color: var(--ink-soft); margin: 4px 0 0 0;">Owns: column types, <span class="mono">NOT NULL</span>, partitioning, clustering. <strong>Enforced by BigQuery on insert.</strong></p>
+    </div>
+    <div>
+      <div style="display: flex; gap: 8px; margin-bottom: 6px;"><span class="pill">Layer 2</span><span class="pill">YAML</span><span class="mono">trader_id_to_name.schema.yml</span></div>
+<pre style="margin-top: 0;"><code data-trim data-noescape class="language-yaml" style="font-size: 11.5px; line-height: 1.5; padding: 12px 16px;"># Semantic rules — things BQ can't enforce itself.
+columns:
+  trader_id:
+    csv_name: "Trader ID"                # optional; case-insensitive by default
+    unique_active: true                  # unique among valid_to IS NULL
+    regex: "^[A-Z]{3}[0-9]{4}$"
+  name:
+    max_length: 80
+
+row_count: { min: 50, max: 2000 }
+
+# Cross-column rules
+rules:
+  - name: "no duplicate active names"
+    sql: "countif(valid_to is null) = count(distinct name)"
+</code></pre>
+      <p style="font-size: 13px; color: var(--ink-soft); margin: 4px 0 0 0;">Owns: <span class="mono">unique</span>, regex, row counts, CSV remapping, domain rules. <strong>Enforced by the loader before insert.</strong> Extra CSV columns are warned and skipped.</p>
+    </div>
+  </div>
+
+  <div class="callout" style="margin-top: 12px; font-size: 14px;">
+    <strong>CI lints both for drift.</strong> A small script reads each <span class="mono">.tf</span> and matching <span class="mono">.schema.yml</span>, asserts they agree on column names and that every yaml-referenced column is <span class="mono">REQUIRED</span> in Terraform unless explicitly nullable. Build fails on mismatch.
+  </div>
+
+  <div class="slide-footer">
+    <span>Managing reference data</span>
+    <span>Schema · 05 / 11</span>
+  </div>
+</section>
+
+<!-- SLIDE 6 — The generic loader (code) -->
+<section data-screen-label="06 The generic loader" style="padding: 32px 64px;">
+  <p class="eyebrow">CODE · LOADER</p>
+  <hr class="eyebrow-rule" />
+  <h2 style="margin-bottom: 0.2em;">One Python module, every table</h2>
+  <p style="max-width: 92ch; color: var(--ink-soft); font-size: 14px; margin-bottom: 4px;">
+    Read with Polars, validate against the schema yaml, then close-out and insert in one BQ transaction. <strong>Defence in depth</strong> — Polars catches bad data first; BQ's <span class="mono">REQUIRED</span> columns are the transactional backstop.
+  </p>
+<pre style="margin-top: 2px;"><code data-trim data-noescape class="language-python" style="font-size: 10.5px; line-height: 1.32; padding: 10px 16px;">import polars as pl, yaml, logging
+from google.cloud import bigquery
+from datetime import datetime, timezone
+
+def load(csv_path: str, schema_path: str, table: str) -&gt; None:
+    schema = yaml.safe_load(open(schema_path))
+    df = pl.read_csv(csv_path)                                  # Polars reads gs:// directly
+
+    # 1 · Resolve CSV columns → table columns (case-insensitive, optional csv_name)
+    csv = {c.lower(): c for c in df.columns}
+    mapping = {t: r.get("csv_name", t).lower() for t, r in schema["columns"].items()}
+    if missing := [t for t, c in mapping.items() if c not in csv]: raise ValueError(f"CSV missing: {missing}")
+    if extras := set(csv) - set(mapping.values()): logging.warning(f"ignoring CSV columns: {sorted(extras)}")
+    df = df.select([pl.col(csv[mapping[t]]).alias(t) for t in schema["columns"]])
+
+    # 2 · Validate semantic rules (BQ enforces types + NOT NULL at insert)
+    rc = schema["row_count"]
+    assert rc["min"] &lt;= df.height &lt;= rc["max"], f"row count out of bounds: {df.height}"
+    for col, r in schema["columns"].items():
+        s = df[col]
+        if r.get("unique_active"):     assert s.n_unique() == s.len(), f"{col} not unique"
+        if rx := r.get("regex"):       assert s.str.contains(rx).all(), f"{col} regex fail"
+        if m := r.get("max_length"):   assert s.str.len_chars().max() &lt;= m, f"{col} too long"
+
+    # 3 · Land the new snapshot in staging
+    client, now = bigquery.Client(), datetime.now(timezone.utc)
+    staging = f"{table}__staging"
+    client.load_table_from_dataframe(
+        df.with_columns(valid_from=pl.lit(now)).to_pandas(), staging,
+        job_config=bigquery.LoadJobConfig(write_disposition="WRITE_TRUNCATE"),
+    ).result()
+
+    # 4 · Close-out + insert, atomically
+    cols = list(schema["columns"]) + ["valid_from"]
+    client.query(
+        f"BEGIN TRANSACTION; "
+        f"UPDATE `{table}` SET valid_to=@now WHERE valid_to IS NULL; "
+        f"INSERT INTO `{table}` ({', '.join(cols + ['valid_to'])}) "
+        f"SELECT {', '.join(cols)}, NULL FROM `{staging}`; "
+        f"COMMIT TRANSACTION;",
+        job_config=bigquery.QueryJobConfig(query_parameters=[
+            bigquery.ScalarQueryParameter("now", "TIMESTAMP", now)]),
+    ).result()
+</code></pre>
+  <div class="slide-footer">
+    <span>Managing reference data</span>
+    <span>Loader · 06 / 11</span>
+  </div>
+</section>
+
+<!-- SLIDE 7 — The DAG: two modes, three callers -->
+<section data-screen-label="07 The DAG — two modes">
+  <p class="eyebrow">ORCHESTRATION · ONE DAG</p>
+  <hr class="eyebrow-rule" />
+  <h2>One DAG. Two modes. Three callers.</h2>
+  <p style="max-width: 86ch; color: var(--ink-soft); font-size: 17px;">
+    A single Composer DAG wraps the loader. What it does on any given run is driven by one optional param — the GCS path of a file to load.
+  </p>
+
+  <div class="two-col" style="margin-top: 14px;">
+    <div class="card">
+      <div style="display: flex; gap: 8px; margin-bottom: 6px;"><span class="pill">Mode A</span><span class="mono">no path param</span></div>
+      <h3>env_check</h3>
+      <p style="color: var(--ink-soft); font-size: 14px;">List every <span class="mono">static_ref_*</span> table in BQ. For each one with no active rows: prefer <span class="mono">inbox/&lt;name&gt;.csv</span>, fall back to <span class="mono">defaults/&lt;env&gt;/&lt;name&gt;.csv</span>, load it. If neither exists, log loudly and continue.</p>
+      <ul style="font-size: 14px;">
+        <li>Self-heals new environments.</li>
+        <li>Idempotent — populated tables are skipped.</li>
+        <li>Ops can pre-stage overrides in <span class="mono">inbox/</span> before first run.</li>
+      </ul>
+    </div>
+    <div class="card tinted">
+      <div style="display: flex; gap: 8px; margin-bottom: 6px;"><span class="pill">Mode B</span><span class="mono">path = gs://...</span></div>
+      <h3>Snapshot replace</h3>
+      <p style="color: var(--ink-soft); font-size: 14px;">Validate the file, close every currently-active row, insert the new snapshot — in one BQ transaction. Run regardless of whether the table is empty; this is the day-to-day update path.</p>
+      <ul style="font-size: 14px;">
+        <li>Table name inferred from filename — no mapping config.</li>
+        <li>Schema yaml looked up from the deployed code, not from the CSV.</li>
+        <li>Archived to <span class="mono">gs://ref/archive/&lt;ts&gt;/</span> on success.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="three-col" style="margin-top: 14px;">
+    <div class="card dark">
+      <h4 style="color: var(--accent);">Caller · Harness</h4>
+      <h3>Post-deploy</h3>
+      <p style="font-size: 13px;">Mirrors <span class="mono">ref_defaults/</span> to GCS, triggers the DAG in <em>env_check</em> mode. Self-provisions any missing tables.</p>
+    </div>
+    <div class="card dark">
+      <h4 style="color: var(--accent);">Caller · Ops</h4>
+      <h3>On-demand</h3>
+      <p style="font-size: 13px;">Drop CSV in <span class="mono">inbox/</span>, trigger the DAG with that path. Promotion is a deliberate two-step.</p>
+    </div>
+    <div class="card dark">
+      <h4 style="color: var(--accent);">Caller · Schedule</h4>
+      <h3>Nightly safety net</h3>
+      <p style="font-size: 13px;">Runs <em>env_check</em> on a cron — catches anything that drifted to empty (e.g. a TRUNCATE in dev).</p>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <span>Managing reference data</span>
+    <span>Orchestration · 07 / 11</span>
+  </div>
+</section>
+
+<!-- SLIDE 8 — Architecture diagram -->
+<section data-screen-label="08 Architecture" style="padding: 32px 64px;">
+  <p class="eyebrow">ARCHITECTURE · END-TO-END</p>
+  <hr class="eyebrow-rule" />
+  <h2 style="margin-bottom: 0.2em;">How it fits together</h2>
+  <p style="max-width: 92ch; color: var(--ink-soft); font-size: 14px; margin-bottom: 6px;">
+    Code on the left, staging in the middle, warehouse on the right. One loader, two doors, three triggers — same code path for every load.
+  </p>
+
+  <svg viewBox="0 0 1180 540" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: auto; display: block; margin-top: 6px;">
+    <defs>
+      <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#006a4d" />
+      </marker>
+      <marker id="ahd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#1a8060" opacity="0.75"/>
+      </marker>
+    </defs>
+    <style>
+      .lane { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; fill: #006a4d; }
+      .node { fill: #ffffff; stroke: #d8e3dd; stroke-width: 1; }
+      .node-tint { fill: #f3f8f5; stroke: #e6f1ec; stroke-width: 1; }
+      .node-dark { fill: #003824; stroke: #003824; }
+      .ttl { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; fill: #003824; }
+      .ttl-w { fill: #ffffff; }
+      .mn { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; fill: #005a3c; }
+      .mn-acc { fill: #9ec5b3; }
+      .mt { font-family: 'Inter', sans-serif; font-size: 11.5px; fill: #3b4a44; }
+      .arr { stroke: #006a4d; stroke-width: 1.5; fill: none; marker-end: url(#ah); }
+      .arr-d { stroke: #1a8060; stroke-width: 1.2; fill: none; stroke-dasharray: 4 4; marker-end: url(#ahd); opacity: 0.8; }
+      .arr-lbl { font-family: 'JetBrains Mono', monospace; font-size: 10px; fill: #006a4d; text-anchor: middle; letter-spacing: 0.05em; }
+      .pill-w { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; fill: #9ec5b3; letter-spacing: 0.12em; }
+    </style>
+
+    <!-- Column headers -->
+    <text x="110" y="22" text-anchor="middle" class="lane">REPO</text>
+    <text x="330" y="22" text-anchor="middle" class="lane">GCS</text>
+    <text x="620" y="22" text-anchor="middle" class="lane">ORCHESTRATION</text>
+    <text x="910" y="22" text-anchor="middle" class="lane">BIGQUERY</text>
+    <text x="1105" y="22" text-anchor="middle" class="lane">DBT</text>
+
+    <!-- Top row: deploy-time data path -->
+    <rect class="node-tint" x="20" y="80" width="180" height="80" rx="12"/>
+    <text x="110" y="106" text-anchor="middle" class="ttl">ref_defaults/</text>
+    <text x="110" y="126" text-anchor="middle" class="mn">*.csv · *.schema.yml</text>
+    <text x="110" y="144" text-anchor="middle" class="mt">data-pipeline repo</text>
+
+    <rect class="node" x="240" y="80" width="180" height="80" rx="12"/>
+    <text x="330" y="106" text-anchor="middle" class="ttl">defaults/&lt;env&gt;/</text>
+    <text x="330" y="126" text-anchor="middle" class="mn">gs://ref/defaults/</text>
+    <text x="330" y="144" text-anchor="middle" class="mt">refreshed every deploy</text>
+
+    <path class="arr" d="M 205 120 L 235 120"/>
+    <text x="220" y="108" class="arr-lbl">Harness</text>
+
+    <!-- Bottom row: ad-hoc data path -->
+    <rect class="node-tint" x="20" y="380" width="180" height="80" rx="12"/>
+    <text x="110" y="406" text-anchor="middle" class="ttl">Ops</text>
+    <text x="110" y="424" text-anchor="middle" class="mt">drop CSV, trigger DAG</text>
+    <text x="110" y="442" text-anchor="middle" class="mt" style="font-size: 10.5px;">no PR, no engineer</text>
+
+    <rect class="node" x="240" y="380" width="180" height="80" rx="12"/>
+    <text x="330" y="406" text-anchor="middle" class="ttl">inbox/</text>
+    <text x="330" y="424" text-anchor="middle" class="mn">gs://ref/inbox/</text>
+    <text x="330" y="442" text-anchor="middle" class="mt">ad-hoc updates</text>
+
+    <path class="arr" d="M 205 420 L 235 420"/>
+    <text x="220" y="408" class="arr-lbl">manual</text>
+
+    <!-- Centre: Composer DAG (hero element) -->
+    <rect class="node-dark" x="460" y="190" width="320" height="180" rx="14"/>
+    <text x="620" y="222" text-anchor="middle" class="ttl ttl-w">ref_loader · DAG</text>
+    <text x="620" y="244" text-anchor="middle" class="mn mn-acc">Polars validate · close + insert · 1 BQ tx</text>
+
+    <rect x="478" y="266" width="138" height="44" rx="9" fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.18)"/>
+    <text x="547" y="284" text-anchor="middle" class="pill-w">MODE A · NO PATH</text>
+    <text x="547" y="302" text-anchor="middle" fill="#ffffff" style="font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;">env_check</text>
+
+    <rect x="624" y="266" width="138" height="44" rx="9" fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.18)"/>
+    <text x="693" y="284" text-anchor="middle" class="pill-w">MODE B · PATH PARAM</text>
+    <text x="693" y="302" text-anchor="middle" fill="#ffffff" style="font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;">targeted load</text>
+
+    <text x="620" y="338" text-anchor="middle" class="mn mn-acc" style="font-size: 10px; letter-spacing: 0.14em;">TRIGGERED BY</text>
+    <text x="620" y="358" text-anchor="middle" fill="rgba(255,255,255,0.85)" style="font-family: 'Inter', sans-serif; font-size: 12.5px;">Harness · Ops · Schedule</text>
+
+    <!-- GCS → DAG -->
+    <path class="arr" d="M 425 120 C 450 120, 450 232, 459 232"/>
+    <path class="arr" d="M 425 420 C 450 420, 450 328, 459 328"/>
+
+    <!-- BigQuery node -->
+    <rect class="node" x="820" y="190" width="180" height="180" rx="12"/>
+    <text x="910" y="218" text-anchor="middle" class="ttl">analytics.ref</text>
+
+    <rect x="838" y="236" width="144" height="66" rx="8" fill="#f3f8f5" stroke="#e6f1ec"/>
+    <text x="910" y="256" text-anchor="middle" class="mn">static_ref_*</text>
+    <text x="910" y="275" text-anchor="middle" class="mt" style="font-size: 10.5px;">SCD-2 history</text>
+    <text x="910" y="291" text-anchor="middle" class="mt" style="font-size: 10.5px;">valid_from · valid_to</text>
+
+    <text x="910" y="326" text-anchor="middle" class="mt" style="font-size: 11px;">tables managed by</text>
+    <text x="910" y="344" text-anchor="middle" class="mn" style="font-size: 11px;">platform-infra/*.tf</text>
+    <text x="910" y="360" text-anchor="middle" class="mt" style="font-size: 9.5px; font-style: italic;">(separate Terraform repo)</text>
+
+    <path class="arr" d="M 785 280 L 815 280"/>
+    <text x="800" y="270" class="arr-lbl">load</text>
+
+    <!-- dbt node -->
+    <rect class="node-tint" x="1040" y="220" width="130" height="120" rx="12"/>
+    <text x="1105" y="248" text-anchor="middle" class="ttl" style="font-size: 13px;">dbt models</text>
+    <text x="1105" y="268" text-anchor="middle" class="mt" style="font-size: 11px;">sources · tests</text>
+    <text x="1105" y="300" text-anchor="middle" class="mn" style="font-size: 10.5px;">{{ source(</text>
+    <text x="1105" y="316" text-anchor="middle" class="mn" style="font-size: 10.5px;">'ref', ...) }}</text>
+
+    <path class="arr" d="M 1005 280 L 1037 280"/>
+  </svg>
+
+  <div class="slide-footer">
+    <span>Managing reference data</span>
+    <span>Architecture · 08 / 11</span>
+  </div>
+</section>
+
+<!-- SLIDE 8 — Testing: two independent layers -->
+<section data-screen-label="09 Testing — two layers">
+  <p class="eyebrow">TESTING · TWO LAYERS</p>
+  <hr class="eyebrow-rule" />
+  <h2>Two independent layers of testing</h2>
+  <p style="max-width: 86ch; color: var(--ink-soft); font-size: 17px;">
+    The loader catches bad files <em>before</em> they land. Two further layers answer different questions about what's already in the warehouse. Time-based freshness doesn't apply — updates are ad-hoc.
+  </p>
+  <div class="two-col" style="margin-top: 18px;">
+    <div class="card">
+      <div style="display: flex; gap: 8px; margin-bottom: 6px;"><span class="pill">Layer 1</span><span class="pill">dbt</span></div>
+      <h3>Source tests</h3>
+      <p style="color: var(--ink-soft); font-size: 14px;">Is the active snapshot well-formed every time dbt builds against it?</p>
+      <ul style="font-size: 14px;">
+        <li><span class="mono">unique</span>, <span class="mono">not_null</span>, regex — all scoped <span class="mono">where valid_to is null</span>.</li>
+        <li>Auto-generated from each <span class="mono">*.schema.yml</span> — single source of truth.</li>
+        <li>Runs with <span class="mono">dbt build</span>.</li>
+      </ul>
+      <div class="callout" style="font-size: 13px; padding: 10px 14px;">
+        Answers: <strong>is it well-formed?</strong>
+      </div>
+    </div>
+    <div class="card dark">
+      <div style="display: flex; gap: 8px; margin-bottom: 6px;"><span class="pill dark">Layer 2</span><span class="pill dark">Composer</span></div>
+      <h3>Quality DAG</h3>
+      <p style="font-size: 14px;">Are the values themselves correct, by domain rules, even if no upload has happened?</p>
+      <ul style="font-size: 14px;">
+        <li>Runs <strong>daily</strong>, decoupled from uploads and from dbt runs.</li>
+        <li>Domain assertions — every active trader has a desk, every active venue has an MIC.</li>
+        <li>Logs to <strong>DynaTrace</strong>; failures propagate to <strong>ServiceNow</strong> tickets.</li>
+      </ul>
+      <div class="callout" style="font-size: 13px; padding: 10px 14px; background: rgba(255,255,255,0.06); border-left-color: var(--accent); color: #cfe0d8;">
+        Answers: <strong style="color:#fff;">is it right?</strong>
+      </div>
+    </div>
+  </div>
+  <div class="callout" style="margin-top: 16px; font-size: 14px;">
+    <strong>The yaml feeds three places.</strong> The loader's runtime validation, dbt's source tests, and the quality DAG's domain checks all read from <span class="mono">*.schema.yml</span> — add a rule once, three layers pick it up.
+  </div>
+  <div class="slide-footer">
+    <span>Managing reference data</span>
+    <span>Testing · 09 / 11</span>
+  </div>
+</section>
+
+<!-- SLIDE 9 — The testing loop -->
+<section data-screen-label="10 The testing loop">
+  <p class="eyebrow">OPERATING MODEL · THE LOOP</p>
+  <hr class="eyebrow-rule" />
+  <h2>The testing loop</h2>
+  <p style="max-width: 86ch; color: var(--ink-soft); font-size: 17px;">
+    Two cadences, two responsibilities. Together they cover model correctness <em>and</em> reference-data quality — without coupling either to the upload schedule.
+  </p>
+  <div class="two-col" style="margin-top: 18px;">
+    <div class="card">
+      <h4>Cadence · hourly / daily</h4>
+      <h3><span class="mono" style="font-size: 0.9em;">dbt build</span></h3>
+      <p style="color: var(--ink-soft); font-size: 14px;">Builds and tests the analytics models that <em>use</em> the ref tables, plus source tests on the active snapshot.</p>
+      <ul style="font-size: 14px;">
+        <li>Owned by analytics eng.</li>
+        <li>Catches <strong>model correctness</strong> regressions.</li>
+        <li>Source tests are scoped to <span class="mono">valid_to IS NULL</span>.</li>
+        <li>Tied to the deploy SLA.</li>
+      </ul>
+    </div>
+    <div class="card dark">
+      <h4 style="color: var(--accent);">Cadence · daily</h4>
+      <h3>Quality DAG</h3>
+      <p style="font-size: 14px;">Domain assertions on the current snapshot — runs whether or not anything was uploaded that day.</p>
+      <ul style="font-size: 14px;">
+        <li>Owned by ops + data platform.</li>
+        <li>Catches <strong>content drift</strong> the schema can't see.</li>
+        <li>Runs whether or not dbt ran, whether or not ops uploaded.</li>
+        <li>Logs to DynaTrace; selective error propagation to ServiceNow.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout" style="margin-top: 22px; font-size: 16px;">
+    <strong>Key principle.</strong> The deploy pipeline tests <em>model correctness</em>; reference data needs its own <em>always-on quality loop</em>. With ad-hoc updates there's no upload cadence to lean on — the quality DAG <em>is</em> the SLA.
+  </div>
+  <div class="slide-footer">
+    <span>Managing reference data</span>
+    <span>Operating model · 10 / 11</span>
+  </div>
+</section>
+
+<!-- SLIDE 10 — Summary -->
+<section data-screen-label="11 Summary">
+  <p class="eyebrow">SUMMARY · TAKEAWAYS</p>
+  <hr class="eyebrow-rule" />
+  <h2>Summary</h2>
+  <div class="three-col" style="margin-top: 18px;">
+    <div class="card">
+      <h4>One mechanism</h4>
+      <ul style="font-size: 14px;">
+        <li>One Python loader — Polars validate, BQ close+insert.</li>
+        <li>One DAG, two modes: <em>env_check</em> or targeted path.</li>
+        <li>Three callers — Harness, ops, schedule — same code path.</li>
+      </ul>
+    </div>
+    <div class="card tinted">
+      <h4>One convention</h4>
+      <ul style="font-size: 14px;">
+        <li><span class="mono">static_ref_*</span> tables — the warehouse is the catalog.</li>
+        <li>Filename = table = schema yaml = Terraform resource.</li>
+        <li>Add a ref table: drop three files, deploy.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Two test layers</h4>
+      <ul style="font-size: 14px;">
+        <li><strong>dbt source tests</strong> — active snapshot is well-formed.</li>
+        <li><strong>Quality DAG</strong> — daily content correctness.</li>
+        <li>Both auto-generated from the same schema yaml.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout" style="margin-top: 22px; font-size: 17px;">
+    <strong>The key principle.</strong> One mechanism serves both audiences — ops edit at runtime through <span class="mono">inbox/</span>; deploys provision new environments from <span class="mono">defaults/</span> via Harness. Same loader, same validation, same SCD-2 history. No second ingestion pattern to maintain.
+  </div>
+  <div class="slide-footer">
+    <span>Managing reference data</span>
+    <span>Summary · 11 / 11</span>
+  </div>
+</section>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    history: true,
+    controls: true,
+    progress: true,
+    slideNumber: 'c/t',
+    transition: 'slide',
+    width: 1280,
+    height: 800,
+    margin: 0.04,
+    plugins: [ RevealHighlight ]
+  });
+</script>
+</body>
+</html>
