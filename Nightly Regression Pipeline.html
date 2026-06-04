@@ -1,0 +1,714 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Nightly Regression &amp; dbt Testing Pipeline</title>
+
+<!-- reveal.js core + a light base theme we override below -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css" id="theme" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/monokai.css" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<style>
+  /* ---------- Palette (inspired by, not a recreation of, the Lloyds green family) ---------- */
+  :root {
+    --green-900: #003824;
+    --green-800: #005a3c;
+    --green-700: #006a4d;   /* primary */
+    --green-600: #1a8060;
+    --green-500: #2f9a78;
+    --green-100: #e6f1ec;
+    --green-050: #f3f8f5;
+    --ink:       #14201b;
+    --ink-soft:  #3b4a44;
+    --line:      #d8e3dd;
+    --paper:     #ffffff;
+    --warn:      #b5651d;
+    --accent:    #9ec5b3;
+  }
+
+  /* ---------- Reveal overrides ---------- */
+  .reveal {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--ink);
+    font-weight: 400;
+    letter-spacing: -0.005em;
+  }
+  .reveal .slides { text-align: left; }
+  .reveal .slides section { padding: 48px 64px; box-sizing: border-box; font-size: 18px; }
+  /* Title + section-divider slides paint the whole frame, so the
+     outer section padding would create a thin un-tinted border. Reset it
+     and force full slide height so Reveal's vertical centering doesn't
+     leave white space above/below the tinted fill. */
+  .reveal .slides section:has(> .title-slide),
+  .reveal .slides section:has(> .section-slide) { padding: 0; height: 800px; }
+
+  .reveal h1, .reveal h2, .reveal h3, .reveal h4 {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--green-900);
+    text-transform: none;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+    line-height: 1.1;
+    margin: 0 0 0.4em;
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+  .reveal h3 .mono, .reveal h4 .mono { white-space: nowrap; }
+  .reveal h1 { font-size: 3.2rem; }
+  .reveal h2 { font-size: 2.2rem; }
+  .reveal h3 { font-size: 1.4rem; }
+  .reveal p, .reveal li { font-size: 1.15rem; line-height: 1.5; color: var(--ink-soft); }
+  .reveal strong { color: var(--ink); font-weight: 600; }
+  .reveal ul { list-style: none; padding: 0; margin: 0; }
+  .reveal ul li { padding-left: 1.1em; position: relative; margin-bottom: 0.45em; }
+  .reveal ul li::before {
+    content: ""; position: absolute; left: 0; top: 0.7em;
+    width: 0.5em; height: 2px; background: var(--green-700);
+  }
+  .reveal a { color: var(--green-700); }
+  .reveal code, .reveal pre {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  .reveal pre {
+    background: #0f1a15; color: #e6f1ec;
+    border-radius: 10px; padding: 18px 22px;
+    font-size: 0.9rem; line-height: 1.5;
+    box-shadow: 0 10px 30px rgba(0,58,40,0.15);
+  }
+  .reveal pre code { background: transparent; padding: 0; }
+
+  .reveal .progress { color: var(--green-700); }
+  .reveal .controls { color: var(--green-700) !important; }
+
+  /* ---------- Layout primitives ---------- */
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 0.78rem;
+    color: var(--green-700);
+    font-weight: 500;
+    margin-bottom: 18px;
+  }
+  .rule {
+    width: 56px; height: 4px; background: var(--green-700);
+    margin: 0 0 26px; border-radius: 2px;
+  }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 22px; }
+  .card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 22px 24px;
+  }
+  .card.tinted { background: var(--green-050); border-color: var(--green-100); }
+  .card.dark   { background: var(--green-900); color: #e6f1ec; border-color: var(--green-900); }
+  .card.dark h3 { color: #ffffff; }
+  .card.dark li { color: #cfe2d8; }
+  .card.dark li::before { background: var(--accent); }
+  .card h3 { margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+  .pill {
+    display: inline-block; font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 3px 9px; border-radius: 999px;
+    background: var(--green-100); color: var(--green-800);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .pill.dark { background: rgba(255,255,255,0.1); color: #cfe2d8; }
+  .pill.warn { background: #f8ecd9; color: var(--warn); }
+
+  /* ---------- Title slide ---------- */
+  .title-slide {
+    background: linear-gradient(135deg, var(--green-900) 0%, var(--green-700) 100%);
+    color: #fff;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 64px 72px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    gap: 32px;
+  }
+  .title-slide h1 { color: #fff; font-size: 3.6rem; max-width: 18ch; }
+  .title-slide .eyebrow { color: var(--accent); }
+  .title-slide .rule { background: var(--accent); }
+  .title-slide p { color: #cfe2d8; font-size: 1.2rem; max-width: 70ch; }
+  .title-slide .lede-line { color: #eaf4ef; font-size: 1.5rem; font-weight: 500; margin: 0 0 8px; max-width: 60ch; }
+  .title-meta {
+    display: flex; gap: 40px; font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem; color: #9ec5b3; letter-spacing: 0.06em;
+  }
+  .title-meta span strong { display: block; color: #fff; font-family: 'Inter', sans-serif; font-weight: 500; font-size: 0.95rem; margin-top: 4px; letter-spacing: 0; }
+
+  /* ---------- Section divider ---------- */
+  .section-slide {
+    background: var(--green-900); color: #fff;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 64px 88px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .section-slide h2 { color: #fff; font-size: 3rem; max-width: 18ch; }
+  .section-slide .eyebrow { color: var(--accent); }
+  .section-slide .rule { background: var(--accent); }
+  .section-slide p { color: #cfe2d8; font-size: 1.25rem; max-width: 56ch; }
+
+  /* ---------- Comparison table ---------- */
+  .compare {
+    width: 100%; border-collapse: separate; border-spacing: 0;
+    font-size: 1.02rem;
+  }
+  .compare th, .compare td {
+    text-align: left; padding: 14px 18px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  .compare thead th {
+    background: var(--green-050); color: var(--green-900);
+    font-weight: 600; font-size: 0.95rem;
+    border-bottom: 2px solid var(--green-700);
+  }
+  .compare tbody th {
+    font-weight: 500; color: var(--ink); width: 22%;
+    background: #fafcfb;
+  }
+  .compare td { color: var(--ink-soft); }
+  .compare tr:last-child th, .compare tr:last-child td { border-bottom: none; }
+
+  /* ---------- Footer chrome ---------- */
+  .slide-footer {
+    position: absolute; left: 64px; right: 64px; bottom: 22px;
+    display: flex; justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; color: #9aa8a0;
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+
+  /* ---------- Misc ---------- */
+  .lede { font-size: 1.3rem; color: var(--ink); max-width: 74ch; }
+  .small { font-size: 0.95rem; }
+  .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; color: var(--green-800); }
+  .kvp { display: grid; grid-template-columns: 120px 1fr; gap: 8px 18px; font-size: 1rem; }
+  .kvp dt { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+            text-transform: uppercase; letter-spacing: 0.08em;
+            color: var(--green-700); padding-top: 3px; }
+  .kvp dd { margin: 0; color: var(--ink-soft); }
+
+  .flowline {
+    margin-top: 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.92rem; line-height: 1.7;
+    color: var(--green-800);
+    background: var(--green-050);
+    border: 1px solid var(--green-100);
+    border-radius: 12px;
+    padding: 16px 22px;
+  }
+  .flowline .lbl { color: var(--ink); font-family: 'Inter', sans-serif; font-weight: 600; }
+
+  .callout {
+    border-left: 4px solid var(--green-700);
+    background: var(--green-050);
+    padding: 14px 18px; border-radius: 0 10px 10px 0;
+    margin-top: 18px;
+  }
+  .callout strong { color: var(--green-900); }
+  .callout p { margin: 0 0 6px; }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* ---------- Reveal sizes ---------- */
+  .reveal section img { border: none; box-shadow: none; }
+</style>
+</head>
+
+<body>
+
+<div class="reveal">
+  <div class="slides">
+
+    <!-- =========================================================
+         SLIDE 1 — Title
+    ========================================================== -->
+    <section data-screen-label="01 Title">
+      <div class="title-slide">
+        <div>
+          <div class="eyebrow">Nightly Regression &amp; dbt Testing Pipeline</div>
+          <div class="rule"></div>
+          <h1>Nightly Regression &amp; dbt Testing on GCP</h1>
+          <p class="lede-line">Python-orchestrated, Harness-driven, auto-reported.</p>
+          <p>A resettable BigQuery test environment fed by versioned CSV fixtures in GCS, with results surfaced in Harness and Microsoft Teams.</p>
+        </div>
+        <div class="title-meta">
+          <span>Compute<strong>Ephemeral BigQuery</strong></span>
+          <span>Inputs<strong>Versioned GCS CSVs</strong></span>
+          <span>Report<strong>Harness · Teams</strong></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 2 — Objectives
+    ========================================================== -->
+    <section data-screen-label="02 Objectives">
+      <div class="eyebrow">Objectives</div>
+      <div class="rule"></div>
+      <h2>What this design has to deliver</h2>
+      <ul style="margin-top: 22px; max-width: 92ch;">
+        <li>Run <strong>dbt unit tests</strong> and <strong>full-pipeline regression</strong> on a nightly schedule.</li>
+        <li>Execute inside a <strong>resettable GCP environment</strong> — no warm infrastructure to maintain or pay for.</li>
+        <li>Use a <strong>persistent bucket of CSV test inputs</strong> as the durable source of truth.</li>
+        <li>Drive everything from <strong>Python</strong>, triggered by a <strong>Harness</strong> pipeline.</li>
+        <li>Produce a report Harness <strong>auto-generates</strong> (no manual interpretation).</li>
+        <li>Notify the team in <strong>Microsoft Teams</strong> on completion, with detail on what drifted.</li>
+      </ul>
+      <div class="slide-footer"><span>Nightly Regression Pipeline</span><span>Objectives</span></div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 3 — Design principles
+    ========================================================== -->
+    <section data-screen-label="03 Design principles">
+      <div class="eyebrow">Design principles</div>
+      <div class="rule"></div>
+      <div class="two-col" style="margin-top: 18px; gap: 22px 44px;">
+        <div>
+          <ul>
+            <li><strong>Persistent inputs, disposable compute.</strong> Fixtures live in GCS; BigQuery state is recreated each run and thrown away.</li>
+            <li><strong>One orchestrator, one report surface.</strong> Python (pytest) owns invocation, diffing, and reporting.</li>
+            <li><strong>dbt does dbt.</strong> We wrap it, we don't reimplement it.</li>
+          </ul>
+        </div>
+        <div>
+          <ul>
+            <li><strong>Determinism first.</strong> Frozen time and stable ordering, or reference outputs are worthless.</li>
+            <li><strong>Granular failures.</strong> One drifted model = one failed test case, not a red wall.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="slide-footer"><span>Nightly Regression Pipeline</span><span>Principles</span></div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 4 — Architecture overview
+    ========================================================== -->
+    <section data-screen-label="04 Architecture overview">
+      <div class="eyebrow">Architecture overview</div>
+      <div class="rule"></div>
+      <h2>Four moving parts</h2>
+      <div class="two-col" style="margin-top: 18px; gap: 18px;">
+        <div class="card">
+          <h3>GCS bucket</h3>
+          <p class="small">Versioned input CSVs (source stand-ins) and reference-output CSVs. Durable, auditable source of truth.</p>
+        </div>
+        <div class="card">
+          <h3>BigQuery dataset</h3>
+          <p class="small">Ephemeral, recreated each night. Cattle, not a pet.</p>
+        </div>
+        <div class="card">
+          <h3>Python / pytest</h3>
+          <p class="small">Loads fixtures, invokes dbt, runs regression diffs, emits JUnit, posts to Teams.</p>
+        </div>
+        <div class="card">
+          <h3>Harness</h3>
+          <p class="small">Schedules the run, ingests JUnit for the Tests tab, holds secrets and the GCP connection.</p>
+        </div>
+      </div>
+      <div class="flowline"><span class="lbl">Flow:&nbsp;&nbsp;</span>GCS fixtures &rarr; BQ ephemeral dataset &rarr; dbt build &rarr; regression diff &rarr; JUnit &rarr; Harness report + Teams</div>
+      <div class="slide-footer"><span>Nightly Regression Pipeline</span><span>Architecture</span></div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 5 — Environment model
+    ========================================================== -->
+    <section data-screen-label="05 Environment model">
+      <div class="eyebrow">Environment model</div>
+      <div class="rule"></div>
+      <h2>Namespaced datasets from the outset, so the suite serves CI and nightly</h2>
+      <ul style="margin-top: 22px; max-width: 96ch;">
+        <li>A <strong>parameterised target dataset</strong> — <span class="mono">test_regression_nightly</span> for the scheduled run, <span class="mono">test_regression_pr_&lt;id&gt;</span> for per-PR CI — set via a Harness var and a <span class="mono">generate_schema_name</span> override.</li>
+        <li>Each dataset is <strong>truncated and reloaded</strong> (or created fresh) per run (<span class="mono">bq mk --force</span>); dbt <strong>auto-names and auto-expires</strong> its own temp tables within it, so parallel runs never collide.</li>
+        <li><strong>GCS bucket</strong> holds inputs + reference outputs with <strong>object versioning</strong> on, so a re-approved reference output is auditable.</li>
+        <li>Inputs are version-controlled alongside (or generated from) the dbt project, so fixtures and the models that consume them move together.</li>
+      </ul>
+      <div class="slide-footer"><span>Nightly Regression Pipeline</span><span>Environment</span></div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 6 — Two test layers, two jobs
+    ========================================================== -->
+    <section data-screen-label="06 Two test layers">
+      <div class="eyebrow">Two test layers, two jobs</div>
+      <div class="rule"></div>
+      <h2>These are not the same test and shouldn't be conflated</h2>
+      <div class="two-col" style="margin-top: 18px;">
+        <div class="card tinted">
+          <h3>dbt unit tests <span class="pill">dbt 1.8+</span></h3>
+          <ul>
+            <li>Mock a single model's inputs, assert on its output rows.</li>
+            <li>Don't touch the bucket or real sources. Fast.</li>
+            <li>Run on <strong>BigQuery in CI</strong> (Harness) — the same adapter as prod, so no SQL dialect shimming.</li>
+          </ul>
+        </div>
+        <div class="card tinted">
+          <h3>Regression</h3>
+          <ul>
+            <li>Full-pipeline run against the <strong>bucket inputs</strong>, output <strong>diffed against reference outputs</strong>.</li>
+            <li>Catches type/coercion and cross-model interaction bugs.</li>
+            <li>Runs against the <strong>ephemeral BigQuery dataset</strong> for dialect/type fidelity.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout"><strong>The bucket only feeds the regression layer.</strong></div>
+      <div class="slide-footer"><span>Nightly Regression Pipeline</span><span>Test layers</span></div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 7 — Pipeline flow (Harness stage)
+    ========================================================== -->
+    <section data-screen-label="07 Pipeline flow">
+      <div class="eyebrow">Pipeline flow · Harness stage</div>
+      <div class="rule"></div>
+      <h2>The nightly stage, in order</h2>
+<pre style="margin-top: 18px;"><code class="language-bash">bq mk --force test_regression        # reset the dataset
+python load_fixtures.py              # CSVs from GCS -> source tables
+pytest --junitxml=reports/pytest-junit.xml
+python dbt_results_to_junit.py       # run_results.json -> reports/dbt-junit.xml
+python notify_teams.py               # always-run summary</code></pre>
+      <div class="callout">
+        <p>Harness <span class="mono">Run</span> step &rarr; <strong>Report Paths</strong>: <span class="mono">reports/*-junit.xml</span>.</p>
+        <p>Both XML files are globbed into a single Tests tab, per-case, with pass/fail/duration.</p>
+      </div>
+      <div class="slide-footer"><span>Nightly Regression Pipeline</span><span>Pipeline flow</span></div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 8 — pytest as the single orchestrator
+    ========================================================== -->
+    <section data-screen-label="08 pytest orchestrator">
+      <div class="eyebrow">pytest as the single orchestrator</div>
+      <div class="rule"></div>
+      <h2>Why pytest owns the whole thing</h2>
+      <ul style="margin-top: 22px; max-width: 96ch;">
+        <li>It is the <strong>single report producer</strong> — Harness only needs JUnit XML on disk.</li>
+        <li>It naturally turns each <strong>regression target</strong> and each <strong>dbt node</strong> into a discrete test case.</li>
+        <li>It keeps the orchestration in <strong>one language</strong>, matching the team's Python stack.</li>
+        <li>Failure messages land directly in the JUnit case, so Harness shows <em>why</em>, not just <em>that</em>.</li>
+      </ul>
+      <div class="callout">dbt is invoked from inside pytest; its native test results are converted into the same report format.</div>
+      <div class="slide-footer"><span>Nightly Regression Pipeline</span><span>Orchestration</span></div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 9 — Driving dbt from Python
+    ========================================================== -->
+    <section data-screen-label="09 Driving dbt from Python">
+      <div class="eyebrow">Driving dbt from Python</div>
+      <div class="rule"></div>
+      <div class="two-col" style="margin-top: 16px; grid-template-columns: 0.85fr 1.15fr; align-items: start;">
+        <div>
+          <p class="lede">Invoke programmatically (not a subprocess) to get the structured result object back:</p>
+          <div class="callout"><span class="mono">dbt build</span> runs <strong>unit tests, data tests, and models</strong> in dependency order in one pass. Per-node outcomes are written to <span class="mono">target/run_results.json</span>.</div>
+        </div>
+<pre><code class="language-python">from dbt.cli.main import dbtRunner
+
+def run_dbt_build(target="ci"):
+    res = dbtRunner().invoke(["build", "--target", target])
+    # don't raise on failure yet — we still want the report + Teams message
+    return res</code></pre>
+      </div>
+      <div class="slide-footer"><span>Nightly Regression Pipeline</span><span>Driving dbt</span></div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 10 — Loading fixtures from GCS
+    ========================================================== -->
+    <section data-screen-label="10 Loading fixtures">
+      <div class="eyebrow">Loading fixtures from GCS</div>
+      <div class="rule"></div>
+      <p class="lede" style="margin-top: 4px;">Load the CSV inputs into <strong>native typed source tables</strong> (not external tables) so the run behaves like prod and regression can catch type/coercion bugs:</p>
+<pre style="margin-top: 16px; font-size: 0.82rem;"><code class="language-python">from google.cloud import bigquery
+
+client = bigquery.Client()
+
+def load(table, uri):
+    job = client.load_table_from_uri(
+        uri,                                  # gs://.../inputs/trades.csv
+        f"test_regression.{table}",
+        job_config=bigquery.LoadJobConfig(
+            source_format=bigquery.SourceFormat.CSV,
+            skip_leading_rows=1,
+            write_disposition="WRITE_TRUNCATE",
+            schema=SCHEMAS[table],            # explicit schema, no autodetect drift
+        ),
+    )
+    job.result()</code></pre>
+      <div class="callout" style="margin-top: 12px;">Explicit schemas beat autodetect here — they keep the fixture contract stable night to night.</div>
+      <div class="slide-footer"><span>Nightly Regression Pipeline</span><span>Fixtures</span></div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 11 — Regression diffs as pytest cases
+    ========================================================== -->
+    <section data-screen-label="11 Regression diffs">
+      <div class="eyebrow">Regression diffs as pytest cases</div>
+      <div class="rule"></div>
+      <p class="lede" style="margin-top: 4px;">One reference output per parametrized case, so a single drifted model is one failed case:</p>
+<pre style="margin-top: 14px; font-size: 0.78rem;"><code class="language-python">import pandas as pd, pytest
+from google.cloud import bigquery
+
+REFERENCE_OUTPUTS = ["fct_trades", "fct_orders", "fct_rfqs"]
+client = bigquery.Client()
+
+@pytest.mark.parametrize("model", REFERENCE_OUTPUTS)
+def test_regression(model):
+    expected = pd.read_csv(f"gs://.../reference/{model}.csv")
+    actual = client.query(f"SELECT * FROM test_regression.{model}").to_dataframe()
+
+    key = sorted(expected.columns)
+    e = expected[key].sort_values(key).reset_index(drop=True)
+    a = actual[key].sort_values(key).reset_index(drop=True)
+
+    pd.testing.assert_frame_equal(e, a, check_dtype=False)</code></pre>
+      <div class="callout" style="margin-top: 12px;">Diffing in Python keeps everything in one language. For matched / only-in-A / only-in-B detail, swap <span class="mono">assert_frame_equal</span> for a key-based set difference.</div>
+      <div class="slide-footer"><span>Nightly Regression Pipeline</span><span>Regression diffs</span></div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 12 — dbt results into the report
+    ========================================================== -->
+    <section data-screen-label="12 dbt results to report">
+      <div class="eyebrow">dbt results into the report</div>
+      <div class="rule"></div>
+      <p class="lede" style="margin-top: 4px;">A small converter turns dbt's node results into JUnit so they share the Harness Tests tab. Written inline rather than depending on <span class="mono">dbt-junitxml</span>, which lags dbt releases:</p>
+<pre style="margin-top: 14px; font-size: 0.8rem;"><code class="language-python">import json
+from junit_xml import TestSuite, TestCase
+
+results = json.load(open("target/run_results.json"))["results"]
+cases = []
+for r in results:
+    tc = TestCase(r["unique_id"], elapsed_sec=r["execution_time"])
+    if r["status"] in ("error", "fail"):
+        tc.add_failure_info(message=r.get("message", r["status"]))
+    elif r["status"] == "skipped":
+        tc.add_skipped_info(message="skipped")
+    cases.append(tc)
+
+with open("reports/dbt-junit.xml", "w") as f:
+    TestSuite.to_file(f, [TestSuite("dbt", cases)])</code></pre>
+      <div class="slide-footer"><span>Nightly Regression Pipeline</span><span>Reporting</span></div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 13 — Determinism: the thing that bites
+    ========================================================== -->
+    <section data-screen-label="13 Determinism">
+      <div class="eyebrow">Determinism: the thing that bites</div>
+      <div class="rule"></div>
+      <p class="lede" style="margin-top: 4px;">Non-deterministic output makes reference outputs worthless and produces phantom failures. Three controls:</p>
+      <div class="three-col" style="margin-top: 24px;">
+        <div class="card tinted">
+          <span class="pill">01</span>
+          <h3 style="margin-top: 10px;">Frozen as-of time</h3>
+          <p class="small">Inject a fixed timestamp via a dbt var; models read it instead of <span class="mono">current_timestamp()</span> / <span class="mono">current_date()</span>. Critical for the bi-temporal models.</p>
+        </div>
+        <div class="card tinted">
+          <span class="pill">02</span>
+          <h3 style="margin-top: 10px;">Stable ordering</h3>
+          <p class="small">Compare as sets — sort on key columns before diffing, never rely on row sequence.</p>
+        </div>
+        <div class="card tinted">
+          <span class="pill">03</span>
+          <h3 style="margin-top: 10px;">Deterministic surrogate keys</h3>
+          <p class="small">Hashing must be reproducible across runs.</p>
+        </div>
+      </div>
+      <div class="slide-footer"><span>Nightly Regression Pipeline</span><span>Determinism</span></div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 14 — Harness reporting
+    ========================================================== -->
+    <section data-screen-label="14 Harness reporting">
+      <div class="eyebrow">Harness reporting</div>
+      <div class="rule"></div>
+      <h2>How the auto-generated report works</h2>
+      <ul style="margin-top: 22px; max-width: 96ch;">
+        <li>Harness <span class="mono">Run</span> step has a <strong>Report Paths</strong> field that ingests <strong>JUnit XML</strong>.</li>
+        <li>Point it at a glob: <span class="mono">reports/*-junit.xml</span>.</li>
+        <li>Both the pytest output and the converted dbt output merge into <strong>one Tests tab</strong> — per-case, with status and duration.</li>
+        <li>No extra plugins or config — JUnit on disk is the entire contract.</li>
+      </ul>
+      <div class="slide-footer"><span>Nightly Regression Pipeline</span><span>Harness reporting</span></div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 15 — Teams: the landscape changed
+    ========================================================== -->
+    <section data-screen-label="15 Teams landscape">
+      <div class="eyebrow">Teams: the landscape changed</div>
+      <div class="rule"></div>
+      <h2>Important constraint as of June 2026</h2>
+      <div class="two-col" style="margin-top: 18px;">
+        <div>
+          <ul>
+            <li>The legacy <strong>Office 365 connector webhooks</strong> (<span class="mono">webhook.office.com</span>) are <strong>retired</strong> — Microsoft's final rollout completed 18–22 May 2026.</li>
+            <li>The supported replacement is a <strong>Power Automate Workflows</strong> incoming webhook.</li>
+            <li>Set up once in Teams: <strong>Workflows → "Post to a channel when a webhook request is received"</strong> → gives a webhook URL that accepts a POST.</li>
+          </ul>
+        </div>
+        <div class="card tinted">
+          <h3><span class="pill warn">Caveats</span></h3>
+          <ul>
+            <li>Messages post under the <strong>Flow bot identity</strong> — no custom icon or display name.</li>
+            <li>Interactive elements require <strong>Adaptive Cards</strong> payloads.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="slide-footer"><span>Nightly Regression Pipeline</span><span>Teams</span></div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 16 — Teams notification (code)
+    ========================================================== -->
+    <section data-screen-label="16 Teams notification code">
+      <div class="eyebrow">Teams notification · code</div>
+      <div class="rule"></div>
+      <p class="lede" style="margin-top: 4px;">Python posts a summary richer than a generic pass/fail — it names what drifted:</p>
+<pre style="margin-top: 12px; font-size: 0.7rem; line-height: 1.45;"><code class="language-python">import os, requests
+
+def notify(summary):
+    card = {
+        "type": "message",
+        "attachments": [{
+            "contentType": "application/vnd.microsoft.card.adaptive",
+            "content": {
+                "type": "AdaptiveCard", "version": "1.4",
+                "body": [
+                    {"type": "TextBlock", "size": "Large", "weight": "Bolder",
+                     "text": f"Nightly regression: {summary['status']}"},
+                    {"type": "TextBlock", "wrap": True,
+                     "text": f"dbt {summary['dbt_pass']}/{summary['dbt_total']} · "
+                             f"regression {summary['reg_pass']}/{summary['reg_total']}"},
+                    {"type": "TextBlock", "wrap": True,
+                     "text": "Drift: " + (", ".join(summary['failures']) or "none")},
+                ],
+            },
+        }],
+    }
+    requests.post(os.environ["TEAMS_WORKFLOW_URL"], json=card, timeout=10).raise_for_status()</code></pre>
+      <div class="slide-footer"><span>Nightly Regression Pipeline</span><span>Teams · code</span></div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 17 — Wiring & failure strategy
+    ========================================================== -->
+    <section data-screen-label="17 Wiring & failure strategy">
+      <div class="eyebrow">Wiring &amp; failure strategy</div>
+      <div class="rule"></div>
+      <h2>The details that decide whether you actually get told things broke</h2>
+      <ul style="margin-top: 22px; max-width: 100ch;">
+        <li>Set <strong>teardown and <span class="mono">notify_teams.py</span> to always execute</strong> in the Harness failure strategy — a failed assertion must not skip the Teams message.</li>
+        <li>Don't let pytest's non-zero exit abort the pipeline <strong>before</strong> the report and notify steps run. Either convert the report in the same pytest invocation (a <span class="mono">conftest</span> hook) or set the step to continue and gate afterward.</li>
+        <li>Keep teardown guaranteed so a failed run never leaks a dataset or cost.</li>
+      </ul>
+      <div class="slide-footer"><span>Nightly Regression Pipeline</span><span>Failure strategy</span></div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 18 — Auth & security
+    ========================================================== -->
+    <section data-screen-label="18 Auth & security">
+      <div class="eyebrow">Auth &amp; security</div>
+      <div class="rule"></div>
+      <ul style="margin-top: 22px; max-width: 100ch;">
+        <li><strong>Workload Identity Federation</strong> for the Harness → GCP connection — no long-lived SA keys in secrets.</li>
+        <li>The identity needs <strong>BigQuery</strong> (dataset create/load/query) and <strong>GCS read</strong> on the fixtures bucket.</li>
+        <li>The <strong>Teams workflow URL</strong> lives in a Harness secret.</li>
+        <li>Fixture and reference-output buckets use <strong>object versioning</strong> for an auditable change history.</li>
+      </ul>
+      <div class="slide-footer"><span>Nightly Regression Pipeline</span><span>Auth &amp; security</span></div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 19 — Technical aspects to prove out ASAP
+    ========================================================== -->
+    <section data-screen-label="19 Spikes to prove out">
+      <div class="eyebrow">Technical aspects to prove out ASAP</div>
+      <div class="rule"></div>
+      <p class="lede" style="margin-top: 4px;">The spikes that carry the most risk — validate these before building out:</p>
+      <div class="two-col" style="margin-top: 16px; gap: 18px 44px;">
+        <div>
+          <ul>
+            <li><strong>Dataset namespacing &amp; CI reuse.</strong> Confirm the parameterised target dataset + <span class="mono">generate_schema_name</span> override cleanly isolates nightly vs per-PR runs, and that dbt's auto-expiring temp tables don't leak.</li>
+            <li><strong>Frozen as-of propagation.</strong> Confirm the dbt var threads through the bi-temporal models and yields byte-stable reference outputs across two consecutive runs.</li>
+            <li><strong><span class="mono">dbtRunner</span> result shape.</strong> Verify structured results / <span class="mono">run_results.json</span> parse cleanly on our pinned dbt version.</li>
+            <li><strong>Harness multi-JUnit ingestion.</strong> Confirm the glob renders both files per-case in the Tests tab.</li>
+          </ul>
+        </div>
+        <div>
+          <ul>
+            <li><strong>Power Automate Workflows webhook.</strong> Provision it, confirm ownership, payload shape, Flow-bot identity is acceptable, and private-channel support if needed.</li>
+            <li><strong>WIF end-to-end.</strong> Harness → GCP with the exact BQ + GCS permissions.</li>
+            <li><strong>Nightly window.</strong> Full reload + build + diff completes within budget; check <span class="mono">gcsfs</span> (gs:// reads) and BigQuery Storage API (<span class="mono">to_dataframe</span>) deps.</li>
+            <li><strong>Reference-output approval workflow.</strong> How a reference output gets re-approved and versioned, and the frame-vs-row-level diff decision for wide tables.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="slide-footer"><span>Nightly Regression Pipeline</span><span>Spikes</span></div>
+    </section>
+
+    <!-- =========================================================
+         SLIDE 20 — Summary & next steps
+    ========================================================== -->
+    <section data-screen-label="20 Summary & next steps">
+      <div class="eyebrow">Summary &amp; next steps</div>
+      <div class="rule"></div>
+      <div class="two-col" style="margin-top: 20px;">
+        <div class="card dark">
+          <ul>
+            <li>Persistent GCS fixtures + ephemeral BigQuery = a genuinely resettable environment with no warm cost.</li>
+            <li>pytest is the single orchestrator and single report producer; dbt is wrapped, not replaced.</li>
+          </ul>
+        </div>
+        <div class="card dark">
+          <ul>
+            <li>Harness auto-reports from JUnit; Teams gets a detailed Power Automate Workflows notification.</li>
+            <li>Determinism is the make-or-break dependency.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout" style="margin-top: 24px;">
+        <strong>Next:</strong> run the Slide 19 spikes, then build the pipeline thinnest-path-first — one source table, one model, one reference output, end to end.
+      </div>
+      <div class="slide-footer"><span>Nightly Regression Pipeline</span><span>Summary</span></div>
+    </section>
+
+  </div>
+</div>
+
+<!-- reveal.js engine -->
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    history: true,
+    controls: true,
+    progress: true,
+    slideNumber: 'c/t',
+    transition: 'slide',
+    width: 1280,
+    height: 800,
+    margin: 0.04,
+    plugins: [ RevealHighlight ]
+  });
+</script>
+</body>
+</html>
