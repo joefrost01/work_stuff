@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Confluence Space Design — Lab Knowledge Architecture</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css" id="theme" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<style>
+  /* ---------- Palette (inspired by, not a recreation of, the Lloyds green family) ---------- */
+  :root {
+    --green-900: #003824;
+    --green-800: #005a3c;
+    --green-700: #006a4d;
+    --green-600: #1a8060;
+    --green-500: #2f9a78;
+    --green-100: #e6f1ec;
+    --green-050: #f3f8f5;
+    --ink:       #14201b;
+    --ink-soft:  #3b4a44;
+    --line:      #d8e3dd;
+    --paper:     #ffffff;
+    --warn:      #b5651d;
+    --accent:    #9ec5b3;
+  }
+
+  /* ---------- Reveal overrides ---------- */
+  .reveal {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--ink);
+    font-weight: 400;
+    letter-spacing: -0.005em;
+  }
+  .reveal .slides { text-align: left; }
+  .reveal .slides section { padding: 48px 64px; box-sizing: border-box; font-size: 18px; }
+  .reveal .slides section:has(> .title-slide),
+  .reveal .slides section:has(> .section-slide) { padding: 0; height: 800px; }
+
+  .reveal h1, .reveal h2, .reveal h3, .reveal h4 {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--green-900);
+    text-transform: none;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+    line-height: 1.1;
+    margin: 0 0 0.4em;
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+  .reveal h1 { font-size: 3.2rem; }
+  .reveal h2 { font-size: 2.2rem; }
+  .reveal h3 { font-size: 1.4rem; }
+  .reveal p, .reveal li { font-size: 1.15rem; line-height: 1.5; color: var(--ink-soft); }
+  .reveal strong { color: var(--ink); font-weight: 600; }
+  .reveal ul { list-style: none; padding: 0; margin: 0; }
+  .reveal ul li { padding-left: 1.1em; position: relative; margin-bottom: 0.45em; }
+  .reveal ul li::before {
+    content: ""; position: absolute; left: 0; top: 0.7em;
+    width: 0.5em; height: 2px; background: var(--green-700);
+  }
+  .reveal a { color: var(--green-700); }
+  .reveal code, .reveal pre { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  .reveal pre {
+    background: #0f1a15; color: #e6f1ec;
+    border-radius: 10px; padding: 18px 22px;
+    font-size: 0.9rem; line-height: 1.5;
+    box-shadow: 0 10px 30px rgba(0,58,40,0.15);
+    width: auto; margin: 0;
+  }
+  .reveal pre code { background: transparent; padding: 0; }
+
+  .reveal .progress { color: var(--green-700); }
+  .reveal .controls { color: var(--green-700) !important; }
+
+  /* ---------- Layout primitives ---------- */
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 0.78rem;
+    color: var(--green-700);
+    font-weight: 500;
+    margin-bottom: 18px;
+  }
+  .rule {
+    width: 56px; height: 4px; background: var(--green-700);
+    margin: 0 0 26px; border-radius: 2px;
+  }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 22px; }
+  .card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 22px 24px;
+  }
+  .card.tinted { background: var(--green-050); border-color: var(--green-100); }
+  .card.dark   { background: var(--green-900); color: #e6f1ec; border-color: var(--green-900); }
+  .card.dark h3 { color: #ffffff; }
+  .card.dark li { color: #cfe2d8; }
+  .card.dark li::before { background: var(--accent); }
+  .card h3 { margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+  .pill {
+    display: inline-block; font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 3px 9px; border-radius: 999px;
+    background: var(--green-100); color: var(--green-800);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .pill.dark { background: rgba(255,255,255,0.1); color: #cfe2d8; }
+  .pill.warn { background: #f8ecd9; color: var(--warn); }
+
+  /* ---------- Title slide ---------- */
+  .title-slide {
+    background: linear-gradient(135deg, var(--green-900) 0%, var(--green-700) 100%);
+    color: #fff;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 64px 72px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    gap: 32px;
+  }
+  .title-slide h1 { color: #fff; font-size: 3.4rem; max-width: 18ch; }
+  .title-slide .eyebrow { color: var(--accent); }
+  .title-slide .rule { background: var(--accent); }
+  .title-slide p { color: #cfe2d8; font-size: 1.2rem; max-width: 60ch; }
+  .title-meta {
+    display: flex; gap: 40px; font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem; color: #9ec5b3; letter-spacing: 0.06em;
+  }
+  .title-meta span strong { display: block; color: #fff; font-family: 'Inter', sans-serif; font-weight: 500; font-size: 0.95rem; margin-top: 4px; letter-spacing: 0; }
+
+  /* ---------- Comparison table ---------- */
+  .compare {
+    width: 100%; border-collapse: separate; border-spacing: 0;
+    font-size: 1.02rem;
+  }
+  .compare th, .compare td {
+    text-align: left; padding: 13px 16px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  .compare thead th {
+    background: var(--green-050); color: var(--green-900);
+    font-weight: 600; font-size: 0.95rem;
+    border-bottom: 2px solid var(--green-700);
+  }
+  .compare tbody th {
+    font-weight: 500; color: var(--ink); width: 18%;
+    background: #fafcfb;
+  }
+  .compare td { color: var(--ink-soft); }
+  .compare tr:last-child th, .compare tr:last-child td { border-bottom: none; }
+
+  /* ---------- Footer chrome ---------- */
+  .slide-footer {
+    position: absolute; left: 64px; right: 64px; bottom: 22px;
+    display: flex; justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; color: #9aa8a0;
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+
+  /* ---------- Misc ---------- */
+  .lede { font-size: 1.3rem; color: var(--ink); max-width: 62ch; }
+  .small { font-size: 0.95rem; }
+  .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; color: var(--green-800); }
+  .callout {
+    border-left: 4px solid var(--green-700);
+    background: var(--green-050);
+    padding: 14px 18px; border-radius: 0 10px 10px 0;
+    margin-top: 18px;
+  }
+  .callout strong { color: var(--green-900); }
+  .callout p { font-size: 1.02rem; margin: 0; }
+
+  /* ---------- Space-map trees ---------- */
+  pre.tree {
+    background: #0f1a15; color: #cfe2d8;
+    font-size: 0.8rem; line-height: 1.62;
+    padding: 20px 24px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,58,40,0.18);
+    overflow: hidden;
+  }
+  pre.tree .z  { color: #ffffff; font-weight: 700; }       /* zone */
+  pre.tree .b  { color: #5d7a6d; }                          /* branch glyphs */
+  pre.tree .hl { color: var(--accent); }                    /* highlight */
+  pre.tree .lb { color: #d9b96a; }                          /* label / tag */
+  pre.tree .dim { color: #87a094; }
+
+  /* compact tree variant for detail slides */
+  pre.tree.sm { font-size: 0.76rem; line-height: 1.55; padding: 16px 20px; }
+</style>
+</head>
+
+<body>
+
+<div class="reveal">
+  <div class="slides">
+
+    <!-- ============ SLIDE 1 — Title ============ -->
+    <section data-screen-label="01 Title">
+      <div class="title-slide">
+        <div>
+          <div class="eyebrow">Lab Knowledge Architecture · Confluence Redesign</div>
+          <div class="rule"></div>
+          <h1>One space, every audience</h1>
+          <p>A Confluence structure that allows us to meet all needs — organised around data products, thin on teams, with audit, risk and security served by views rather than copies.</p>
+        </div>
+        <div class="title-meta">
+          <span>Audience<strong>Lab teams · Assurance partners</strong></span>
+          <span>Date<strong>June 2026</strong></span>
+          <span>Status<strong>Proposal · for discussion</strong></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SLIDE 2 — Design principle ============ -->
+    <section data-screen-label="02 Principle">
+      <div class="eyebrow">The design problem</div>
+      <div class="rule"></div>
+      <h2>A tree can only have one shape</h2>
+      <p class="lede">Teams want to navigate by team. Audit, risk and security want consistent paths to evidence. Architecture, infrastructure and process apply to everything. One hierarchy can't serve all three — so we don't ask it to.</p>
+      <div class="three-col" style="margin-top: 26px;">
+        <div class="card tinted">
+          <span class="pill">Rule 01</span>
+          <h3>Organise by product</h3>
+          <p class="small">The hierarchy follows the longest-lived thing: ODP → FDP → CDP. Teams reorganise; data products persist. A reorg costs the space nothing.</p>
+        </div>
+        <div class="card tinted">
+          <span class="pill">Rule 02</span>
+          <h3>Teams stay thin</h3>
+          <p class="small">Team pages hold rituals, roadmaps and people — and <strong>link</strong> to everything they own. Teams never host product documentation.</p>
+        </div>
+        <div class="card tinted">
+          <span class="pill">Rule 03</span>
+          <h3>Cross-cutting = views</h3>
+          <p class="small">Assurance, releases, reconciliations and Jira work surface through <strong>labels</strong>, not duplicate pages. Written once, seen everywhere relevant.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>The principle in one line:</strong> write once, organised by product — surface many ways, via templates and labels.</p>
+      </div>
+      <div class="slide-footer"><span>Principle</span><span>02 · 10</span></div>
+    </section>
+
+    <!-- ============ SLIDE 3 — Overview map ============ -->
+    <section data-screen-label="03 Space Map">
+      <div class="eyebrow">Overview</div>
+      <div class="rule"></div>
+      <h2 style="margin-bottom: 18px;">The whole space on one page</h2>
+      <div class="two-col" style="gap: 20px;">
+        <pre class="tree">
+<span class="z">🏠 HOME</span>
+<span class="b">└─</span> Front doors by audience <span class="dim">· news · A–Z</span>
+
+<span class="z">🏛 HOW WE WORK</span>
+<span class="b">├─</span> Architecture <span class="dim">— reference · patterns</span>
+<span class="b">│   ├─</span> System Component Catalogue
+<span class="b">│   └─</span> ADR Log <span class="lb">adr</span>
+<span class="b">├─</span> Infrastructure &amp; Platform <span class="dim">— paved road · GCP</span>
+<span class="b">├─</span> Lab Engagement <span class="dim">— intake → delivery · RACI</span>
+<span class="b">└─</span> Standards &amp; Templates
+<span class="b">    └─</span> <span class="hl">★ Label &amp; metadata taxonomy</span>
+
+<span class="z">📦 DATA PRODUCTS</span>
+<span class="b">├─</span> Product Registry <span class="dim">(auto-index)</span> · Lineage map
+<span class="b">├─</span> ODPs <span class="dim">— Trade/Order/Exec · Venue · Client · Event</span>
+<span class="b">├─</span> FDPs <span class="dim">— Surveillance · Controls</span>
+<span class="b">└─</span> CDPs <span class="dim">— Surveillance · Trading Controls</span>
+<span class="b">    └─</span> <span class="hl">every product: identical 8-part template</span></pre>
+        <pre class="tree">
+<span class="z">🚀 RELEASES &amp; OPERATIONS</span>
+<span class="b">├─</span> Releases <span class="dim">— calendar · notes</span> <span class="lb">release</span><span class="dim"> · gates</span>
+<span class="b">├─</span> Reconciliations <span class="dim">— register · per-rec pages</span> <span class="lb">recon</span>
+<span class="b">├─</span> Incidents &amp; Problems
+<span class="b">└─</span> Runbooks &amp; Support
+
+<span class="z">👥 TEAMS</span> <span class="dim">(thin pages — link, never host)</span>
+<span class="b">├─</span> Lab Leadership <span class="dim">— LPO · LEL · Integrator</span>
+<span class="b">├─</span> Platform &amp; Engineering Capability <span class="dim">× 5 teams</span>
+<span class="b">└─</span> Shared Data Product · Surveillance · Controls
+
+<span class="z">🛡 GOVERNANCE &amp; ASSURANCE</span>
+<span class="b">├─</span> Front door <span class="dim">— audit · risk &amp; controls · security</span>
+<span class="b">├─</span> Controls matrix <span class="dim">— risk → control → evidence</span>
+<span class="b">├─</span> Governance &amp; recon roll-ups <span class="dim">(label-driven)</span>
+<span class="b">├─</span> Security <span class="dim">— access model · assessments</span>
+<span class="b">└─</span> Audit workspaces <span class="dim">— evidence by link</span></pre>
+      </div>
+      <p class="small" style="margin-top: 14px; color: var(--ink-soft);">Six zones, one front door each. <span class="lb" style="font-family:'JetBrains Mono',monospace; color: var(--warn);">amber</span> marks content that participates in label-driven roll-ups.</p>
+      <div class="slide-footer"><span>Space map</span><span>03 · 10</span></div>
+    </section>
+
+    <!-- ============ SLIDE 4 — How the Lab Works ============ -->
+    <section data-screen-label="04 Operating Layer">
+      <div class="eyebrow">Zone detail · 1 of 4</div>
+      <div class="rule"></div>
+      <h2>How we work — the operating layer</h2>
+      <p class="lede" style="font-size: 1.15rem;">The rules of the game, written once. Owned by the Platform &amp; Engineering teams and lab leadership — every page has a named owning team from the org chart.</p>
+      <div class="two-col" style="margin-top: 20px; gap: 22px;">
+        <div>
+          <div class="card" style="margin-bottom: 14px;">
+            <h3><span class="pill">Architecture</span></h3>
+            <ul class="small">
+              <li>Reference architecture, principles, integration patterns</li>
+              <li><strong>System Component Catalogue</strong> — one page per component, each with its own Jira roll-up</li>
+              <li><strong>Global ADR log</strong> — decisions are lab assets, labelled by the products they touch</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3><span class="pill">Infrastructure &amp; Platform</span></h3>
+            <ul class="small">
+              <li>Paved road: CI/CD, environments, GCP estate</li>
+              <li>Ingestion frameworks &amp; shared services catalogue</li>
+              <li>Access &amp; onboarding</li>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom: 14px;">
+            <h3><span class="pill">Lab Engagement</span></h3>
+            <ul class="small">
+              <li>The front door: how to engage the lab</li>
+              <li>Intake → discovery → delivery lifecycle</li>
+              <li>Prioritisation cadence, RACI, ways of working</li>
+            </ul>
+          </div>
+          <div class="card dark">
+            <h3><span class="pill dark">Standards &amp; Templates</span></h3>
+            <ul class="small">
+              <li><strong style="color:#fff;">Label &amp; metadata taxonomy</strong> — the single source for Confluence and Jira labels</li>
+              <li>Data product template · modelling standards · DQ &amp; reconciliation standards</li>
+              <li>Release standards · service-readiness checklist</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Link up, never copy down:</strong> product pages reference the paved road and record only their <em>deviations</em> — which makes exceptions visible and searchable, a gift to audit.</p>
+      </div>
+      <div class="slide-footer"><span>How the lab works</span><span>04 · 10</span></div>
+    </section>
+
+    <!-- ============ SLIDE 5 — Data Products ============ -->
+    <section data-screen-label="05 Data Products">
+      <div class="eyebrow">Zone detail · 2 of 4</div>
+      <div class="rule"></div>
+      <h2>Data Products — the heart of the space</h2>
+      <div class="two-col" style="margin-top: 8px; gap: 26px;">
+        <div>
+          <p>The registry follows the lineage your org model already defines — and the FDP layer sits in the middle as <strong>the data product others consume</strong>.</p>
+          <pre class="tree sm" style="margin-top: 14px;">
+<span class="z">📦 DATA PRODUCTS</span>
+<span class="b">├─</span> Product Registry <span class="dim">(auto-index of all products)</span>
+<span class="b">├─</span> Lineage map <span class="dim">ODP → FDP → CDP</span>
+<span class="b">├─</span> <span class="hl">ODPs</span> <span class="lb">odp-*</span>
+<span class="b">│   </span><span class="dim">Summit/Murex · ReD</span>
+<span class="b">│   </span><span class="dim">Fenics/Trad-e... · DWP/Carbon...</span>
+<span class="b">├─</span> <span class="hl">FDPs</span> <span class="lb">fdp-*</span>
+<span class="b">│   </span><span class="dim">Trade FDP · Orders FDP...</span>
+<span class="b">└─</span> <span class="hl">CDPs</span> <span class="lb">cdp-*</span>
+<span class="b">    </span><span class="dim">Surveillance (Trading Hub extracts) · Trading Controls</span></pre>
+        </div>
+        <div class="card tinted">
+          <h3>Every product page — same eight children</h3>
+          <ul class="small">
+            <li><strong>Overview &amp; ownership</strong> — PO, squad, status, criticality</li>
+            <li>Data model &amp; contracts — schemas, dictionary (link to Collibra), versioning</li>
+            <li><strong>Governance &amp; controls</strong> — classification, retention, access</li>
+            <li>Lineage — link to Collibra</li>
+            <li><strong>DQ &amp; reconciliations</strong> — rules, links to recon pages, CI details</li>
+            <li><strong>Operations</strong> — runbook, SLOs, service introduction</li>
+            <li><strong>Decisions</strong> — ADR roll-up by label</li>
+            <li><strong>Work in flight</strong> — live Jira roll-up by product label</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Predictability is the accommodation.</strong> When audit asks "show me governance for X", the answer is in the same place relative to <em>any</em> product — ODP, FDP or CDP.</p>
+      </div>
+      <div class="slide-footer"><span>Data products</span><span>05 · 10</span></div>
+    </section>
+
+    <!-- ============ SLIDE 6 — Releases & Operations ============ -->
+    <section data-screen-label="06 Releases and Operations">
+      <div class="eyebrow">Zone detail · 3 of 4</div>
+      <div class="rule"></div>
+      <h2>Releases &amp; Operations — the run-time zone</h2>
+      <p class="lede" style="font-size: 1.15rem;">Change and run concerns get their own zone rather than being squeezed into products or process — because they're what operations, support and assurance check daily.</p>
+      <div class="three-col" style="margin-top: 20px;">
+        <div class="card">
+          <span class="pill">Releases</span>
+          <h3 style="margin-top: 10px;">One page per release</h3>
+          <ul class="small">
+            <li>Calendar &amp; schedule, process &amp; gates</li>
+            <li>Each release note labelled <span class="mono">release</span> + every product and component it touches</li>
+            <li>"What changed for product X" is a label query, not a curated page - based on Jira labels and release tag</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="pill">Reconciliations</span>
+          <h3 style="margin-top: 10px;">One page per test cycle</h3>
+          <ul class="small">
+            <li>Framework lives in Standards; <strong>instances live here</strong></li>
+            <li>Purpose, scope, owner, schedule, break process, evidence location</li>
+            <li>Register self-assembles by label: by product, component or frequency</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="pill">Run</span>
+          <h3 style="margin-top: 10px;">Incidents &amp; support</h3>
+          <ul class="small">
+            <li>Incident log &amp; post-incident reviews</li>
+            <li>Support model &amp; rotas</li>
+            <li>Runbook index — label-driven, runbooks themselves live with their products</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Same pattern as everything else:</strong> a release or a rec is written once, tagged with the products it touches, and appears automatically on product pages, the register, and assurance roll-ups.</p>
+      </div>
+      <div class="slide-footer"><span>Releases &amp; operations</span><span>06 · 10</span></div>
+    </section>
+
+    <!-- ============ SLIDE 7 — Teams + Governance ============ -->
+    <section data-screen-label="07 Teams and Governance">
+      <div class="eyebrow">Zone detail · 4 of 4</div>
+      <div class="rule"></div>
+      <h2>Teams stay thin · Assurance gets a hub</h2>
+      <div class="two-col" style="margin-top: 16px; gap: 26px;">
+        <div class="card">
+          <h3><span class="pill">👥 Teams</span></h3>
+          <p class="small">One page per team, mirroring the org slide: leadership, the five platform teams, the shared data product squad, and the two feature squads.</p>
+          <ul class="small">
+            <li>Mission, members, rituals, roadmap, Jira board link</li>
+            <li><strong>Links</strong> to owned products and components — never hosted content</li>
+            <li>A reorg means moving links, not migrating documentation</li>
+          </ul>
+        </div>
+        <div class="card dark">
+          <h3><span class="pill dark">🛡 Governance &amp; Assurance</span></h3>
+          <p class="small" style="color:#cfe2d8;">Audit, risk &amp; controls and security never navigate the team structure — they enter here, and every page underneath is a live view.</p>
+          <ul class="small">
+            <li>Controls matrix: risk → control → evidence links into product pages</li>
+            <li>Governance, recon and control-test roll-ups by label</li>
+            <li>Security: access model summary, assessment evidence index</li>
+            <li>Audit workspaces — <strong style="color:#fff;">evidence by link, never by copy</strong></li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Why this works:</strong> the hub holds almost no original content. If the underlying page moves or changes, the assurance view stays current — there is nothing to go stale.</p>
+      </div>
+      <div class="slide-footer"><span>Teams &amp; assurance</span><span>07 · 10</span></div>
+    </section>
+
+    <!-- ============ SLIDE 8 — Communities ============ -->
+    <section data-screen-label="08 Communities">
+      <div class="eyebrow">Serving different communities</div>
+      <div class="rule"></div>
+      <h2>One front door per audience</h2>
+      <table class="compare" style="margin-top: 14px;">
+        <thead>
+          <tr><th>Community</th><th>Enters through</th><th>What they need</th><th>How the space serves it</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>Engineers</th>
+            <td>How the Lab Works</td>
+            <td>Paved roads, standards, ADRs, component docs</td>
+            <td>Operating layer + component catalogue; product deviations linked from each product page</td>
+          </tr>
+          <tr>
+            <th>Product owners &amp; business</th>
+            <td>Data Products</td>
+            <td>What exists, who owns it, what's in flight</td>
+            <td>Product registry, lineage map, live Jira roll-ups on every product page</td>
+          </tr>
+          <tr>
+            <th>Audit &amp; risk / controls</th>
+            <td>Governance &amp; Assurance</td>
+            <td>Consistent evidence paths, controls coverage, rec results</td>
+            <td>Controls matrix + identical product template — governance is always in the same place</td>
+          </tr>
+          <tr>
+            <th>Security</th>
+            <td>Governance &amp; Assurance</td>
+            <td>Access models, classifications, assessment evidence</td>
+            <td>Security section + per-product governance pages, rolled up by label</td>
+          </tr>
+          <tr>
+            <th>Ops &amp; support</th>
+            <td>Releases &amp; Operations</td>
+            <td>What changed, what broke, how to fix it</td>
+            <td>Release notes, incident log, label-driven runbook index</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout">
+        <p><strong>Lab Home is just a switchboard:</strong> five audience tiles, each linking to the right zone. Nobody is more than two clicks from their content.</p>
+      </div>
+      <div class="slide-footer"><span>Communities</span><span>08 · 10</span></div>
+    </section>
+
+    <!-- ============ SLIDE 9 — Taxonomy & virtual spaces ============ -->
+    <section data-screen-label="09 Taxonomy">
+      <div class="eyebrow">Tagging &amp; taxonomy</div>
+      <div class="rule"></div>
+      <h2>Labels assemble the virtual spaces</h2>
+      <div class="two-col" style="margin-top: 12px; gap: 26px;">
+        <div>
+          <p class="small">One taxonomy, defined once under Standards, used <strong>verbatim in Confluence and Jira</strong>:</p>
+          <table class="compare small" style="margin-top: 10px;">
+            <thead><tr><th>Family</th><th>Pattern</th><th>Examples</th></tr></thead>
+            <tbody>
+              <tr><th>Product</th><td class="mono">odp-* fdp-* cdp-*</td><td class="mono">fdp-event.transaction.trade</td></tr>
+              <tr><th>Component</th><td class="mono">comp-*</td><td class="mono">comp-ingestion</td></tr>
+              <tr><th>Concern</th><td class="mono">bare noun</td><td class="mono">adr · recon · release</td></tr>
+            </tbody>
+          </table>
+          <p class="small" style="margin-top: 14px;">A ticket or page tagged <span class="mono">cdp-surveillance</span> + <span class="mono">recon</span> surfaces on the product page, the recon register, and assurance roll-ups — <strong>zero curation</strong>.</p>
+        </div>
+        <div>
+          <p class="small">The "Surveillance CDP virtual space" — never built, always assembled:</p>
+          <pre class="tree sm" style="margin-top: 10px;">
+<span class="z">Surveillance CDP</span> <span class="lb">cdp-surveillance</span>
+<span class="b">├─</span> Product page <span class="dim">(the only real home)</span>
+<span class="b">├─</span> ADRs touching it          <span class="dim">← label query</span>
+<span class="b">├─</span> Releases that changed it   <span class="dim">← label query</span>
+<span class="b">├─</span> Its reconciliations        <span class="dim">← label query</span>
+<span class="b">├─</span> Its runbooks               <span class="dim">← label query</span>
+<span class="b">└─</span> Jira work in flight        <span class="dim">← JQL ↓</span></pre>
+          <pre style="margin-top: 12px; font-size: 0.82rem;"><code>labels = cdp-surveillance
+ORDER BY updated DESC</code></pre>
+          <p class="small" style="margin-top: 10px;">Embedded with the Jira Issues macro — the same query works for any product or component label.</p>
+        </div>
+      </div>
+      <div class="slide-footer"><span>Taxonomy &amp; virtual spaces</span><span>09 · 10</span></div>
+    </section>
+
+    <!-- ============ SLIDE 10 — Making it stick ============ -->
+    <section data-screen-label="10 Making It Stick">
+      <div class="title-slide">
+        <div>
+          <div class="eyebrow">Making it stick</div>
+          <div class="rule"></div>
+          <h1 id="closing-headline">Three small habits</h1>
+          <p><strong style="color:#fff;">1 · Label at creation</strong> — labels are a field on Jira screens and pre-baked into every Confluence template, so authors never think about them.<br /><br />
+          <strong style="color:#fff;">2 · Templates are law</strong> — every data product, release, rec and ADR starts from the standard template. Predictable structure is what assurance buys.<br /><br />
+          <strong style="color:#fff;">3 · Every page has an owner</strong> — a named team from the org chart, reviewed quarterly. Ownership is what stops the operating layer rotting.</p>
+        </div>
+        <div class="title-meta">
+          <span>Next<strong>Agree taxonomy with assurance partners</strong></span>
+          <span>Then<strong>Pilot: one FDP documented end-to-end</strong></span>
+          <span>Decision<strong>Adopt template as lab standard</strong></span>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    history: true,
+    controls: true,
+    progress: true,
+    slideNumber: 'c/t',
+    transition: 'slide',
+    width: 1280,
+    height: 800,
+    margin: 0.04
+  });
+</script>
+
+<!-- Tweaks panel -->
+<div id="tweaks-root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel">
+  const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+    "closingHeadline": "Three small habits",
+    "accent": "#006a4d",
+    "transition": "slide"
+  }/*EDITMODE-END*/;
+
+  // Each accent option carries its darker companions so the whole
+  // palette stays harmonious when swapped.
+  const ACCENT_SHADES = {
+    "#006a4d": { g800: "#005a3c", g900: "#003824", g600: "#1a8060", g500: "#2f9a78", g100: "#e6f1ec", g050: "#f3f8f5" },
+    "#0e5f5f": { g800: "#0b4f4f", g900: "#063434", g600: "#1f7474", g500: "#338b8b", g100: "#e3f0f0", g050: "#f1f8f8" },
+    "#1f3a73": { g800: "#1a3161", g900: "#0e1d3d", g600: "#33508c", g500: "#4a67a3", g100: "#e6ebf4", g050: "#f3f6fa" }
+  };
+
+  function ConfluenceDeckTweaks() {
+    const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+
+    React.useEffect(() => {
+      const h = document.getElementById('closing-headline');
+      if (h && h.textContent !== t.closingHeadline) h.textContent = t.closingHeadline;
+    }, [t.closingHeadline]);
+
+    React.useEffect(() => {
+      const s = ACCENT_SHADES[t.accent] || ACCENT_SHADES["#006a4d"];
+      const root = document.documentElement.style;
+      root.setProperty('--green-700', t.accent);
+      root.setProperty('--green-800', s.g800);
+      root.setProperty('--green-900', s.g900);
+      root.setProperty('--green-600', s.g600);
+      root.setProperty('--green-500', s.g500);
+      root.setProperty('--green-100', s.g100);
+      root.setProperty('--green-050', s.g050);
+    }, [t.accent]);
+
+    React.useEffect(() => {
+      if (window.Reveal && Reveal.isReady && Reveal.isReady()) {
+        Reveal.configure({ transition: t.transition });
+      }
+    }, [t.transition]);
+
+    return (
+      <TweaksPanel>
+        <TweakSection label="Theme"></TweakSection>
+        <TweakColor label="Accent" value={t.accent}
+                    options={['#006a4d', '#0e5f5f', '#1f3a73']}
+                    onChange={(v) => setTweak('accent', v)}></TweakColor>
+        <TweakRadio label="Transition" value={t.transition}
+                    options={['slide', 'fade', 'none']}
+                    onChange={(v) => setTweak('transition', v)}></TweakRadio>
+        <TweakSection label="Copy"></TweakSection>
+        <TweakText label="Closing headline" value={t.closingHeadline}
+                   onChange={(v) => setTweak('closingHeadline', v)}></TweakText>
+      </TweaksPanel>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById('tweaks-root')).render(<ConfluenceDeckTweaks></ConfluenceDeckTweaks>);
+</script>
+</body>
+</html>

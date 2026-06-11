@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Confluence Space Build Playbook — Step by Step</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --green-900: #003824;
+    --green-800: #005a3c;
+    --green-700: #006a4d;
+    --green-100: #e6f1ec;
+    --green-050: #f3f8f5;
+    --ink:       #14201b;
+    --ink-soft:  #3b4a44;
+    --line:      #d8e3dd;
+    --warn-bg:   #fdf3e3;
+    --warn-bd:   #e3b35c;
+    --warn-tx:   #8a5a14;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #f0f3f1; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--ink);
+    font-size: 16px;
+    line-height: 1.55;
+  }
+  .page {
+    max-width: 880px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 56px 64px 72px;
+  }
+  @media print {
+    html, body { background: #fff; }
+    .page { max-width: none; padding: 0 8mm; }
+    .phase { break-inside: avoid-page; }
+    .phase.long { break-inside: auto; }
+    h2 { break-after: avoid-page; }
+  }
+
+  /* ---- headings ---- */
+  h1, h2, h3, h4 { color: var(--green-900); letter-spacing: -0.02em; line-height: 1.15; }
+  h1 { font-size: 34px; font-weight: 800; margin: 0 0 6px; }
+  h2 { font-size: 23px; font-weight: 700; margin: 0; }
+  h3 { font-size: 17px; font-weight: 700; margin: 26px 0 8px; }
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase; letter-spacing: 0.14em;
+    font-size: 12px; color: var(--green-700); font-weight: 600;
+    margin-bottom: 14px;
+  }
+  .rule { width: 56px; height: 4px; background: var(--green-700); margin: 18px 0 22px; border-radius: 2px; }
+  .lede { font-size: 17.5px; color: var(--ink-soft); max-width: 64ch; margin: 0 0 8px; }
+
+  /* ---- phase blocks ---- */
+  .phase {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    margin-top: 34px;
+    overflow: hidden;
+  }
+  .phase-head {
+    background: var(--green-050);
+    border-bottom: 1px solid var(--line);
+    padding: 16px 24px;
+    display: flex; align-items: baseline; gap: 14px;
+  }
+  .phase-head .pnum {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; font-weight: 600; letter-spacing: 0.08em;
+    color: #fff; background: var(--green-700);
+    padding: 3px 10px; border-radius: 999px;
+    flex-shrink: 0; transform: translateY(-2px);
+  }
+  .phase-head .ptime {
+    margin-left: auto; font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; color: var(--ink-soft); letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .phase-body { padding: 20px 24px 24px; }
+  .phase-body > p { color: var(--ink-soft); margin: 0 0 14px; }
+
+  /* ---- steps with checkboxes ---- */
+  ol.steps { list-style: none; margin: 0; padding: 0; counter-reset: step; }
+  ol.steps > li {
+    position: relative;
+    padding: 10px 12px 10px 74px;
+    border-bottom: 1px dashed var(--line);
+    counter-increment: step;
+    min-height: 30px;
+  }
+  ol.steps > li:last-child { border-bottom: none; }
+  ol.steps > li::before {
+    content: counter(step);
+    position: absolute; left: 12px; top: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; font-weight: 600; color: var(--green-700);
+    width: 20px; text-align: right;
+  }
+  ol.steps > li::after {
+    content: "";
+    position: absolute; left: 42px; top: 12px;
+    width: 15px; height: 15px;
+    border: 2px solid var(--green-700);
+    border-radius: 4px;
+    background: #fff;
+  }
+  ol.steps li p { margin: 6px 0 0; color: var(--ink-soft); font-size: 14.5px; }
+
+  /* ---- inline UI path + exact-text styles ---- */
+  .path {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13.5px;
+    background: var(--green-100); color: var(--green-900);
+    padding: 1px 7px; border-radius: 5px;
+    white-space: nowrap;
+  }
+  .type {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13.5px;
+    background: #0f1a15; color: #cfe2d8;
+    padding: 1px 8px; border-radius: 5px;
+  }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; color: var(--green-800); }
+
+  pre.block {
+    background: #0f1a15; color: #e6f1ec;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; line-height: 1.7;
+    border-radius: 10px; padding: 16px 20px;
+    margin: 10px 0; overflow-x: auto;
+  }
+  pre.block .c { color: #87a094; }
+
+  /* ---- callouts ---- */
+  .warn {
+    background: var(--warn-bg);
+    border-left: 4px solid var(--warn-bd);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px; margin: 14px 0;
+    font-size: 14.5px; color: var(--warn-tx);
+  }
+  .warn strong { color: #6b4209; }
+  .tip {
+    background: var(--green-050);
+    border-left: 4px solid var(--green-700);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px; margin: 14px 0;
+    font-size: 14.5px; color: var(--ink-soft);
+  }
+  .tip strong { color: var(--green-900); }
+
+  .checkpoint {
+    background: var(--green-900); color: #e6f1ec;
+    border-radius: 10px; padding: 14px 18px;
+    margin-top: 18px; font-size: 14.5px;
+  }
+  .checkpoint strong { color: #fff; display: block; margin-bottom: 4px; font-size: 13px;
+    font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.1em; }
+
+  /* ---- tables ---- */
+  table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 10px 0; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  thead th { background: var(--green-050); color: var(--green-900); font-weight: 600; border-bottom: 2px solid var(--green-700); }
+  td code { font-size: 12.5px; }
+
+  .toc { columns: 2; gap: 32px; font-size: 14.5px; margin-top: 8px; }
+  .toc div { margin-bottom: 5px; color: var(--ink-soft); }
+  .toc .n { font-family: 'JetBrains Mono', monospace; color: var(--green-700); font-weight: 600; margin-right: 8px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="eyebrow">Lab Knowledge Architecture · Build Guide</div>
+  <h1>Confluence Space Build Playbook</h1>
+  <p class="lede">A manual, click-by-click guide to building the lab space on Confluence Cloud. Work through the phases in order — each ends with a checkpoint so you know it's safe to continue. Budget roughly half a day, spread over a week if you prefer.</p>
+  <div class="rule"></div>
+
+  <div class="toc">
+    <div><span class="n">0</span>Prerequisites &amp; decisions</div>
+    <div><span class="n">1</span>Create the space</div>
+    <div><span class="n">2</span>Lock the label taxonomy</div>
+    <div><span class="n">3</span>Top-level skeleton</div>
+    <div><span class="n">4</span>Master copies (your "templates")</div>
+    <div><span class="n">5</span>How the Lab Works</div>
+    <div><span class="n">6</span>Data Products</div>
+    <div><span class="n">7</span>Releases &amp; Operations</div>
+    <div><span class="n">8</span>Teams</div>
+    <div><span class="n">9</span>Governance &amp; Assurance</div>
+    <div><span class="n">10</span>Lab Home front doors</div>
+    <div><span class="n">11</span>Jira wiring</div>
+    <div><span class="n">12</span>Final verification</div>
+  </div>
+
+  <!-- ================= PHASE 0 ================= -->
+  <div class="phase">
+    <div class="phase-head"><span class="pnum">Phase 0</span><h2>Prerequisites &amp; decisions</h2><span class="ptime">~20 min</span></div>
+    <div class="phase-body">
+      <p>Do these before touching Confluence. Everything later depends on them.</p>
+      <ol class="steps">
+        <li>Confirm you can create spaces: open Confluence, click <span class="path">Spaces</span> in the top bar — you need a <span class="path">Create a space</span> option. If missing, ask your site admin for space-creation permission.</li>
+        <li>Confirm you can edit Jira issues in your lab's Jira project(s) and that the <strong>Labels</strong> field is visible when you create an issue. If it isn't, you'll need a Jira project admin in Phase 11 — line one up now.</li>
+        <li>Write down your product list from the design deck: every ODP (by source system — Summit-ALXXXXXX, ReD-ALXXXXXX, Fenics-ALXXXXXX, etc.), every FDP (by canonical entity — Event.Transaction.Trade, Event.Interaction.Orders, etc.), and the two CDP areas (Surveillance, Trading Controls). You'll type these many times; a fixed list prevents naming drift.</li>
+        <li>Decide the space name and key now: name <span class="type">Markets Lab</span> (or your preferred name), key <span class="type">MLAB</span>. The key appears in every URL and <strong>cannot be changed later</strong>.</li>
+      </ol>
+      <div class="checkpoint"><strong>Checkpoint 0</strong>You have space-create rights, a Jira contact, a written product list, and a chosen space name + key.</div>
+    </div>
+  </div>
+
+  <!-- ================= PHASE 1 ================= -->
+  <div class="phase">
+    <div class="phase-head"><span class="pnum">Phase 1</span><h2>Create the space</h2><span class="ptime">~10 min</span></div>
+    <div class="phase-body">
+      <ol class="steps">
+        <li>Top bar → <span class="path">Spaces</span> → <span class="path">Create a space</span>. If offered a template gallery, choose <span class="path">Blank space</span> — we are building our own structure, a template will fight you.</li>
+        <li>Enter the name and key you decided in Phase 0. Set access to your team for now (you'll open it up in Phase 9).</li>
+        <li>Open the new space's home page → <span class="path">Edit</span> → rename the title to <span class="type">Lab Home</span> → <span class="path">Publish</span>. Leave the body empty; you'll fill it in Phase 10, once everything it links to exists.</li>
+      </ol>
+      <div class="checkpoint"><strong>Checkpoint 1</strong>The space exists, and its homepage is titled "Lab Home".</div>
+    </div>
+  </div>
+
+  <!-- ================= PHASE 2 ================= -->
+  <div class="phase">
+    <div class="phase-head"><span class="pnum">Phase 2</span><h2>Lock the label taxonomy</h2><span class="ptime">~20 min</span></div>
+    <div class="phase-body">
+      <p>Labels are the machinery of the whole design — get them right before creating content pages.</p>
+      <div class="warn"><strong>Test dotted labels first.</strong> Your naming pattern uses dots (<code>fdp-event.transaction.trade</code>). Jira accepts dots in labels; Confluence Cloud rejects some punctuation. Before committing: open any page, press <span class="path">L</span>, and try adding <span class="type">fdp-event.transaction.trade</span>. <strong>If Confluence rejects or mangles it</strong>, switch the whole taxonomy to dashes (<span class="type">fdp-event-transaction-trade</span>) — in BOTH systems. The strings must match exactly or every roll-up silently breaks.</li></div>
+      <ol class="steps">
+        <li>Run the dot test described above and note the result.</li>
+        <li>Write the master taxonomy list. Start from this and extend with your product list from Phase 0:
+<pre class="block"># Concern labels (bare nouns — used on pages AND Jira tickets)
+adr   recon   release   governance   runbook   service-intro   control-test   incident
+
+# Component labels (one per entry in the Component Catalogue)
+comp-ingestion   comp-cicd   comp-trading-hub   comp-alerting   comp-controls-portal   comp-ai-services
+
+# Product labels (one per product — examples, complete from your list)
+odp-summit-alxxxxxx   odp-red-alxxxxxx   odp-fenics-alxxxxxx
+fdp-event-transaction-trade   fdp-event-transaction-order
+cdp-surveillance   cdp-trading-controls</pre></li>
+        <li>Rules to enforce forever: all lowercase · no spaces · one label per product/component, reused verbatim everywhere · never invent a label mid-task — extend the master list first.</li>
+      </ol>
+      <div class="checkpoint"><strong>Checkpoint 2</strong>You have a final written label list, dot-or-dash decided, covering every product, component and concern.</div>
+    </div>
+  </div>
+
+  <!-- ================= PHASE 3 ================= -->
+  <div class="phase">
+    <div class="phase-head"><span class="pnum">Phase 3</span><h2>Top-level skeleton</h2><span class="ptime">~15 min</span></div>
+    <div class="phase-body">
+      <p>Create the six zone pages as children of <strong>Lab Home</strong>. In the left sidebar, hover <span class="path">Lab Home</span> → click the <span class="path">+</span> that appears → a new child page opens. Title it, publish with an empty body, repeat.</p>
+      <ol class="steps">
+        <li>Create child page <span class="type">How the Lab Works</span> → Publish.</li>
+        <li>Create child page <span class="type">Data Products</span> → Publish.</li>
+        <li>Create child page <span class="type">Releases &amp; Operations</span> → Publish.</li>
+        <li>Create child page <span class="type">Teams</span> → Publish.</li>
+        <li>Create child page <span class="type">Governance &amp; Assurance</span> → Publish.</li>
+        <li>Create child page <span class="type">_Master Copies</span> → Publish. <p>The underscore keeps this utility branch sorted last — it's scaffolding, not content.</p></li>
+        <li>In the sidebar, drag the six pages into exactly this order (top to bottom): How the Lab Works · Data Products · Releases &amp; Operations · Teams · Governance &amp; Assurance · _Master Copies.</li>
+      </ol>
+      <div class="warn"><strong>Always create pages from the sidebar <span class="path">+</span> on the intended parent.</strong> Pages created from the global Create button land at space root and you'll have to move them. If a page lands in the wrong place: <span class="path">••• menu → Move</span>, or drag it in the sidebar.</div>
+      <div class="checkpoint"><strong>Checkpoint 3</strong>Lab Home has exactly six children, in the order above.</div>
+    </div>
+  </div>
+
+  <!-- ================= PHASE 4 ================= -->
+  <div class="phase long">
+    <div class="phase-head"><span class="pnum">Phase 4</span><h2>Master copies — your "templates"</h2><span class="ptime">~45 min</span></div>
+    <div class="phase-body">
+      <p>Confluence templates can only create <em>single</em> pages — they cannot create a page <em>tree</em>. Since every data product needs eight child pages, we use a master-copy branch instead: build the tree once under <strong>_Master Copies</strong>, then copy-with-children for each real product. This is the single most important trick in this playbook.</p>
+      <h3>4a · The data product master</h3>
+      <ol class="steps">
+        <li>Under <span class="type">_Master Copies</span>, create child page <span class="type">ZZ Product Name</span>.</li>
+        <li>In its body, add a <strong>Page Properties</strong> macro: type <span class="type">/page properties</span> → select it → inside the macro insert a two-column table with these exact rows (left column bold):
+<pre class="block">Owner        | (name)
+Squad        | (squad)
+Type         | ODP | FDP | CDP   <span class="c">← delete two, keep one, when copying</span>
+Status       | Draft
+Criticality  | TBC</pre>
+<p>These rows power the auto-generated Product Registry in Phase 6 — the row names must be identical on every product page.</p></li>
+        <li>Publish, then create these <strong>eight child pages</strong> under it, each published with a one-line description of what belongs there:
+<pre class="block">Overview &amp; Ownership
+Data Model &amp; Contracts
+Governance &amp; Controls
+Lineage
+DQ &amp; Reconciliations        <span class="c">← rules, links to recon pages, CI details</span>
+Operations
+Decisions
+Work in Flight</pre></li>
+        <li>On <span class="type">Decisions</span>: add a <strong>Content by Label</strong> macro (type <span class="type">/content by label</span>), configured with label <span class="type">adr</span>. You'll add the product's own label to this filter on each copy.</li>
+        <li>On <span class="type">Work in Flight</span>: add a <strong>Jira</strong> macro (type <span class="type">/jira</span>) with placeholder JQL <span class="type">labels = REPLACE-ME ORDER BY updated DESC</span>.</li>
+      </ol>
+      <h3>4b · Single-page templates</h3>
+      <p>These are genuinely single pages, so real Confluence templates work: go to <span class="path">Space settings → Templates → Create a template</span> (wording varies slightly by version) and create:</p>
+      <ol class="steps">
+        <li>Template <span class="type">ADR</span> — headings: Context · Decision · Status · Consequences · Products affected. Reminder line at top: "Add labels: <code>adr</code> + every product/component label this touches."</li>
+        <li>Template <span class="type">Release Note</span> — headings: Summary · Contents · Products &amp; components affected · Evidence / gates. Reminder: "Add labels: <code>release</code> + affected product/component labels."</li>
+        <li>Template <span class="type">Reconciliation</span> — headings: Purpose · Scope · Owner · Schedule · Break process · Evidence location. Reminder: "Add labels: <code>recon</code> + product/component labels."</li>
+        <li>Template <span class="type">Team Page</span> — headings: Mission · Members · Rituals · Roadmap · Jira board (link) · What we own (links only).</li>
+      </ol>
+      <div class="tip"><strong>If you can't find space templates</strong> in your plan/UI, skip them: create four more master pages under _Master Copies instead (<span class="type">ZZ ADR</span>, <span class="type">ZZ Release Note</span>, <span class="type">ZZ Reconciliation</span>, <span class="type">ZZ Team Page</span>) and copy them when needed. Identical outcome.</div>
+      <div class="checkpoint"><strong>Checkpoint 4</strong>_Master Copies contains "ZZ Product Name" with its 8 children; the four single-page templates exist (either as space templates or ZZ masters).</div>
+    </div>
+  </div>
+
+  <!-- ================= PHASE 5 ================= -->
+  <div class="phase">
+    <div class="phase-head"><span class="pnum">Phase 5</span><h2>How the Lab Works</h2><span class="ptime">~40 min</span></div>
+    <div class="phase-body">
+      <p>All pages in this phase are created under <span class="type">How the Lab Works</span> using the sidebar <span class="path">+</span>.</p>
+      <ol class="steps">
+        <li>Create <span class="type">Architecture</span>, and under it: <span class="type">Reference Architecture &amp; Principles</span>, <span class="type">Integration Patterns</span>, <span class="type">System Component Catalogue</span>, <span class="type">ADR Log</span>.</li>
+        <li>Under <span class="type">System Component Catalogue</span>, create one page per component (one per <code>comp-*</code> label from Phase 2). On each: press <span class="path">L</span> → add its own <code>comp-*</code> label → in the body add a <strong>Jira</strong> macro with JQL <span class="type">labels = comp-xxx ORDER BY updated DESC</span> (matching that page's label).</li>
+        <li>On <span class="type">ADR Log</span>: add a <strong>Content by Label</strong> macro filtered to label <span class="type">adr</span>, restricted to this space. New ADRs are created under this page from the ADR template — the log assembles itself.</li>
+        <li>Create <span class="type">Infrastructure &amp; Platform</span>, and under it: <span class="type">Paved Road — CI/CD &amp; Environments</span>, <span class="type">GCP Estate</span>, <span class="type">Ingestion Frameworks</span>, <span class="type">Shared Services Catalogue</span>, <span class="type">Access &amp; Onboarding</span>.</li>
+        <li>Create <span class="type">Lab Engagement</span>, and under it: <span class="type">How to Engage the Lab</span>, <span class="type">Intake to Delivery Lifecycle</span>, <span class="type">Prioritisation &amp; Planning</span>, <span class="type">RACI &amp; Ways of Working</span>.</li>
+        <li>Create <span class="type">Standards &amp; Templates</span>, and under it: <span class="type">Label &amp; Metadata Taxonomy</span> ← <strong>paste your Phase 2 master list here; this page is now the single source of truth</strong> — plus <span class="type">Data Product Documentation Standard</span>, <span class="type">Data Modelling Standards</span>, <span class="type">DQ &amp; Reconciliation Standards</span>, <span class="type">Release &amp; Change Standards</span>, <span class="type">Service Readiness Checklist</span>.</li>
+      </ol>
+      <div class="checkpoint"><strong>Checkpoint 5</strong>Four branches exist under How the Lab Works; the taxonomy page holds the master label list; every component page has its label + Jira macro.</div>
+    </div>
+  </div>
+
+  <!-- ================= PHASE 6 ================= -->
+  <div class="phase long">
+    <div class="phase-head"><span class="pnum">Phase 6</span><h2>Data Products</h2><span class="ptime">~60 min</span></div>
+    <div class="phase-body">
+      <ol class="steps">
+        <li>Under <span class="type">Data Products</span>, create: <span class="type">Product Registry</span>, <span class="type">Lineage Map</span>, <span class="type">ODPs</span>, <span class="type">FDPs</span>, <span class="type">CDPs</span> (in that order).</li>
+        <li>Now stamp out products. For each product on your Phase 0 list: open <span class="type">ZZ Product Name</span> → <span class="path">••• menu → Copy</span> → tick <span class="path">Include child pages</span> → set destination to <span class="type">ODPs</span>, <span class="type">FDPs</span> or <span class="type">CDPs</span> as appropriate → copy.</li>
+        <li>On each copy, immediately do all four of these before moving to the next product — half-finished copies are how mistakes creep in:
+          <p>① Rename the page to the product (e.g. <span class="type">Summit/Murex ODP</span>, <span class="type">Trade FDP</span>, <span class="type">Surveillance CDP</span>). ② Press <span class="path">L</span>, add its product label (e.g. <code>fdp-event.transaction.trade</code>). ③ Fix the Page Properties table: set Type to just ODP/FDP/CDP, fill Owner and Squad. ④ Open its <span class="type">Work in Flight</span> child and replace <code>REPLACE-ME</code> in the JQL with the product label; open <span class="type">Decisions</span> and add the product label to the Content-by-Label filter.</p></li>
+        <li>On <span class="type">Product Registry</span>: add a <strong>Page Properties Report</strong> macro (type <span class="type">/page properties report</span>). Configure: Label = your product labels won't all fit, so instead add label <span class="type">data-product</span> — then go back and press <span class="path">L</span> on every product page to add <span class="type">data-product</span> alongside its own label. The report now lists every product with Owner / Squad / Type / Status columns, automatically.</li>
+        <li>On <span class="type">Lineage Map</span>: insert a simple table or diagram showing ODP → FDP → CDP flows, linking each name to its page. (A table of "consumes → consumed by" rows is fine to start; replace with a diagram later.)</li>
+      </ol>
+      <div class="warn"><strong>Copy direction matters.</strong> Always copy FROM the ZZ master, never from another product page — earlier products accumulate real content you don't want duplicated into new ones.</div>
+      <div class="checkpoint"><strong>Checkpoint 6</strong>Every product from your list exists with 8 children, its own label + <code>data-product</code>, correct Page Properties, and a working Jira macro. The Product Registry lists them all.</div>
+    </div>
+  </div>
+
+  <!-- ================= PHASE 7 ================= -->
+  <div class="phase">
+    <div class="phase-head"><span class="pnum">Phase 7</span><h2>Releases &amp; Operations</h2><span class="ptime">~30 min</span></div>
+    <div class="phase-body">
+      <ol class="steps">
+        <li>Under <span class="type">Releases &amp; Operations</span>, create: <span class="type">Releases</span>, <span class="type">Reconciliations</span>, <span class="type">Incidents &amp; Problems</span>, <span class="type">Runbooks &amp; Support</span>.</li>
+        <li>Under <span class="type">Releases</span>: create <span class="type">Release Calendar</span>, <span class="type">Release Process &amp; Gates</span>, and <span class="type">Release Notes</span>. On Release Notes, add a <strong>Content by Label</strong> macro filtered to <span class="type">release</span>, this space. Individual release pages are created under it from the Release Note template.</li>
+        <li>Under <span class="type">Reconciliations</span>: create <span class="type">Recon Register</span> with a <strong>Content by Label</strong> macro filtered to <span class="type">recon</span>. Individual recs are created under Reconciliations from the Reconciliation template, each labelled <code>recon</code> + its product/component labels.</li>
+        <li>Under <span class="type">Incidents &amp; Problems</span>: create <span class="type">Incident Log</span> (a simple table to start) and <span class="type">Post-Incident Reviews</span>.</li>
+        <li>Under <span class="type">Runbooks &amp; Support</span>: create <span class="type">Support Model &amp; Rotas</span> and <span class="type">Runbook Index</span> — the index is a <strong>Content by Label</strong> macro on <span class="type">runbook</span>. Runbooks themselves live under each product's Operations page, labelled <code>runbook</code> + product label.</li>
+      </ol>
+      <div class="checkpoint"><strong>Checkpoint 7</strong>The three registers (release notes, recons, runbooks) are label-driven macros, not hand-maintained lists.</div>
+    </div>
+  </div>
+
+  <!-- ================= PHASE 8 ================= -->
+  <div class="phase">
+    <div class="phase-head"><span class="pnum">Phase 8</span><h2>Teams</h2><span class="ptime">~25 min</span></div>
+    <div class="phase-body">
+      <ol class="steps">
+        <li>Under <span class="type">Teams</span>, create one page per team from the org slide using the Team Page template: <span class="type">Lab Leadership</span>, <span class="type">CICD &amp; DevOps</span>, <span class="type">Data Engineering</span>, <span class="type">Integration &amp; APIs</span>, <span class="type">QE / Automation / XRA</span>, <span class="type">AI &amp; Advanced Analytics</span>, <span class="type">Shared Data Product Squad</span>, <span class="type">Surveillance Squad</span>, <span class="type">Trading Controls Squad</span>.</li>
+        <li>On each team page, fill "What we own" with <strong>links</strong> to its products and components — select text → <span class="path">Ctrl/Cmd+K</span> → search the page name. No product documentation is ever written here.</li>
+      </ol>
+      <div class="checkpoint"><strong>Checkpoint 8</strong>Nine team pages, each linking out to owned products/components, hosting nothing.</div>
+    </div>
+  </div>
+
+  <!-- ================= PHASE 9 ================= -->
+  <div class="phase">
+    <div class="phase-head"><span class="pnum">Phase 9</span><h2>Governance &amp; Assurance</h2><span class="ptime">~35 min</span></div>
+    <div class="phase-body">
+      <ol class="steps">
+        <li>Under <span class="type">Governance &amp; Assurance</span>, create: <span class="type">Start Here — Audit, Risk &amp; Security</span>, <span class="type">Controls Matrix</span>, <span class="type">Governance Records</span>, <span class="type">Recon &amp; Control Test Results</span>, <span class="type">Security</span>, <span class="type">Audit Workspaces</span>.</li>
+        <li><span class="type">Governance Records</span>: <strong>Content by Label</strong> macro on <span class="type">governance</span>. Then press <span class="path">L</span> on every product's <span class="type">Governance &amp; Controls</span> child page and add the <code>governance</code> label — that single action populates this whole view.</li>
+        <li><span class="type">Recon &amp; Control Test Results</span>: two <strong>Content by Label</strong> macros — one on <span class="type">recon</span>, one on <span class="type">control-test</span>.</li>
+        <li><span class="type">Controls Matrix</span>: a table with columns Risk · Control · Evidence, where Evidence cells are links into product Governance pages and recon pages. This is the one assurance page you maintain by hand.</li>
+        <li>Under <span class="type">Security</span>: create <span class="type">Access Model Summary</span> and <span class="type">Assessment Evidence Index</span> (Content by Label on a <span class="type">security-evidence</span> label if you want it self-maintaining — add the label to your taxonomy page first).</li>
+        <li>Grant access: <span class="path">Space settings → Space permissions</span> (or <span class="path">Access</span>) → give your audit, risk and security groups <strong>View</strong> permission. They should not need Edit.</li>
+      </ol>
+      <div class="checkpoint"><strong>Checkpoint 9</strong>An auditor with view access can reach any product's governance evidence in two clicks from Start Here, and the roll-ups populate themselves.</div>
+    </div>
+  </div>
+
+  <!-- ================= PHASE 10 ================= -->
+  <div class="phase">
+    <div class="phase-head"><span class="pnum">Phase 10</span><h2>Lab Home front doors</h2><span class="ptime">~20 min</span></div>
+    <div class="phase-body">
+      <ol class="steps">
+        <li>Edit <span class="type">Lab Home</span>. Add a heading <span class="type">Start here</span> and a five-row layout (or simple list) — one entry per audience, each a single bold link with one line of description:
+<pre class="block">Engineers            → How the Lab Works
+Product &amp; business   → Data Products
+Audit &amp; risk         → Governance &amp; Assurance › Start Here
+Security             → Governance &amp; Assurance › Security
+Ops &amp; support        → Releases &amp; Operations</pre></li>
+        <li>Below it, add a short "What is this space?" paragraph and a link to the <span class="type">Label &amp; Metadata Taxonomy</span> page.</li>
+        <li>Optionally embed your two slide decks (org structure + space design) as attachments or links for context.</li>
+      </ol>
+      <div class="checkpoint"><strong>Checkpoint 10</strong>Every audience reaches its zone in one click from Lab Home.</div>
+    </div>
+  </div>
+
+  <!-- ================= PHASE 11 ================= -->
+  <div class="phase">
+    <div class="phase-head"><span class="pnum">Phase 11</span><h2>Jira wiring</h2><span class="ptime">~30 min + admin help</span></div>
+    <div class="phase-body">
+      <ol class="steps">
+        <li>With your Jira project admin: ensure the <strong>Labels</strong> field appears on the <strong>create</strong> screen of every issue type the lab uses (Jira admin → Screens). If people must open an issue after creation to label it, labelling will not happen.</li>
+        <li>Paste the label taxonomy into the Jira project's description or a pinned page, linking back to the Confluence taxonomy page as the source of truth.</li>
+        <li>Spot-check the round trip: create a test Jira ticket labelled with one product label (e.g. <span class="type">cdp-surveillance</span>) → open that product's <span class="type">Work in Flight</span> page in Confluence → confirm the ticket appears in the Jira macro. Delete the test ticket after.</li>
+        <li>Optional but recommended: create saved Jira filters per product label (<span class="type">labels = cdp-surveillance ORDER BY updated DESC</span>) so boards and dashboards can reuse them.</li>
+      </ol>
+      <div class="warn"><strong>If the Jira macro shows "no issues found"</strong> when you know tickets exist: 9 times out of 10 the label string differs (dot vs dash, typo, case). Compare the page label and the ticket label character by character.</div>
+      <div class="checkpoint"><strong>Checkpoint 11</strong>A labelled test ticket appeared on the right product page with zero manual curation.</div>
+    </div>
+  </div>
+
+  <!-- ================= PHASE 12 ================= -->
+  <div class="phase">
+    <div class="phase-head"><span class="pnum">Phase 12</span><h2>Final verification — the pilot</h2><span class="ptime">~half a day, spread out</span></div>
+    <div class="phase-body">
+      <p>Don't announce the space yet. Prove it with one product first.</p>
+      <ol class="steps">
+        <li>Pick one FDP and document it end-to-end: fill all eight child pages with real content, including data model, governance, and at least one real reconciliation page linked from <span class="type">DQ &amp; Reconciliations</span> (with rules, recon links and CI details).</li>
+        <li>Create one real ADR from the template, labelled with that FDP — confirm it appears on both the global ADR Log and the product's Decisions page.</li>
+        <li>Create one release note labelled with the FDP — confirm it appears in the Release Notes register.</li>
+        <li>Ask one engineer, one PO and (if possible) one risk/audit colleague to find three things each, unaided. Watch where they stumble; fix navigation, not people.</li>
+        <li>Walk the full checklist: ☐ six zones in order ☐ registry lists all products ☐ all three registers self-populate ☐ Jira round trip works ☐ assurance has view access ☐ taxonomy page is linked from Lab Home.</li>
+        <li>Announce the space, present the design deck, and state the three habits: label at creation · templates are law · every page has an owner.</li>
+      </ol>
+      <div class="checkpoint"><strong>Done</strong>One product fully documented, every automatic view proven live, and three real users navigated it unaided. Now scale out product by product.</div>
+    </div>
+  </div>
+
+  <p style="margin-top: 36px; font-size: 13px; color: #9aa8a0; font-family: 'JetBrains Mono', monospace;">Lab Knowledge Architecture · Build Playbook · June 2026 · prints to ~8 pages</p>
+
+</div>
+</body>
+</html>
