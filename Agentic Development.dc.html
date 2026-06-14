@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; background: #0b140f; }
+</style>
+</helmet>
+
+<x-import component-from-global-scope="deck-stage" from="./deck-stage.js" width="1920" height="1080" hint-size="100%,100%" data-uneditable="">
+
+  <!-- ============================ SLIDE 1 — HOOK ============================ -->
+  <section data-label="01 Hook" data-screen-label="01 Hook" data-speaker-notes="Open on the number, no throat-clearing. We're now building software at least five times faster than we were. Work that used to take weeks, we turn around in days. Let it sit. Then: I'm going to show you what that actually means, how we make it reliable, and why it matters to a room like this one — and it isn't a someday thing, it's how we already work." style="box-sizing:border-box; background:linear-gradient(135deg,#003824 0%,#006a4d 100%); color:#ffffff; padding:110px 120px; display:flex; flex-direction:column; justify-content:space-between; font-family:'Inter',system-ui,sans-serif;">
+    <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.18em; font-size:28px; font-weight:500; color:#9ec5b3;">Agentic Software Development</div>
+    <div style="display:flex; flex-direction:column; justify-content:center; flex:1;">
+      <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.14em; font-size:36px; font-weight:500; color:#9ec5b3; margin-bottom:14px;">At least five times faster</div>
+      <div style="display:flex; align-items:baseline; gap:8px; margin-bottom:24px;">
+        <span style="font-size:400px; font-weight:700; line-height:0.82; letter-spacing:-0.03em; color:#ffffff;">5×</span>
+      </div>
+      <div style="font-size:64px; font-weight:600; line-height:1.15; color:#eaf4ef; max-width:26ch;">&nbsp; &nbsp; &nbsp; &nbsp; -- from days to hours...</div>
+    </div>
+    <div style="display:flex; justify-content:space-between; align-items:center; font-family:'JetBrains Mono',monospace; font-size:28px; letter-spacing:0.06em; color:#9ec5b3;">
+      <span>Writing software faster and better with AI agents</span>
+      <span></span>
+    </div>
+  </section>
+
+  <!-- ============================ SLIDE 2 — WHAT AGENTIC MEANS ============================ -->
+  <section data-label="02 What agentic means" data-screen-label="02 What agentic means" data-speaker-notes="Quick translation for everyone who isn't an engineer. Most people assume AI coding is fancy autocomplete — it finishes the line you're typing. That's not what we're talking about. Agentic means you hand over an objective — build this, investigate that — and it works out the steps itself: it plans, it does the work, and it checks its own output. You're delegating an outcome, not steering keystroke by keystroke." style="box-sizing:border-box; background:#ffffff; color:#14201b; padding:100px 120px; display:flex; flex-direction:column; font-family:'Inter',system-ui,sans-serif;">
+    <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.16em; font-size:28px; font-weight:500; color:#006a4d; margin-bottom:24px;">What “agentic” means</div>
+    <div style="width:72px; height:5px; background:#006a4d; border-radius:2px; margin-bottom:48px;"></div>
+    <h2 style="margin:0 0 60px; font-size:88px; font-weight:700; line-height:1.04; letter-spacing:-0.02em; color:#003824; max-width:22ch;">Not autocomplete. You hand over a goal.</h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:40px;">
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:20px; padding:52px 54px;">
+        <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:28px; font-weight:500; color:#3b4a44; margin-bottom:28px;">The assumption</div>
+        <div style="font-size:48px; font-weight:600; line-height:1.2; color:#14201b;">Fancy autocomplete.</div>
+        <div style="font-size:38px; font-weight:400; line-height:1.4; color:#3b4a44; margin-top:18px;">It finishes the line you are already typing.</div>
+      </div>
+      <div style="background:#003824; border:1px solid #003824; border-radius:20px; padding:52px 54px;">
+        <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:28px; font-weight:500; color:#9ec5b3; margin-bottom:28px;">What it actually is</div>
+        <div style="font-size:48px; font-weight:600; line-height:1.2; color:#ffffff;">You give it the objective.</div>
+        <div style="font-size:38px; font-weight:400; line-height:1.4; color:#cfe2d8; margin-top:18px;">It plans the steps, does the work, and checks its own output.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ SLIDE 3 — THE PROOF ============================ -->
+  <section data-label="03 The proof" data-screen-label="03 The proof" data-speaker-notes="Let me pin that to something real. Take a concrete piece of work — building a reporting UI for surveillance research and investigation. The before: about three weeks, one developer, heads down. The after: three days, with us reviewing the work. Same output, same standard, a fraction of the time. Swap in whatever example lands best with your team." style="box-sizing:border-box; background:#ffffff; color:#14201b; padding:100px 120px; display:flex; flex-direction:column; font-family:'Inter',system-ui,sans-serif;">
+    <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.16em; font-size:28px; font-weight:500; color:#006a4d; margin-bottom:24px;">The proof</div>
+    <div style="width:72px; height:5px; background:#006a4d; border-radius:2px; margin-bottom:48px;"></div>
+    <h2 style="margin:0 0 24px; font-size:88px; font-weight:700; line-height:1.04; letter-spacing:-0.02em; color:#003824; max-width:22ch;">From days to hours.</h2>
+    <div style="font-size:40px; font-weight:500; line-height:1.4; color:#3b4a44; margin-bottom:52px;"><span style="font-family:'JetBrains Mono',monospace; font-size:28px; letter-spacing:0.08em; text-transform:uppercase; color:#006a4d; background:#e6f1ec; padding:8px 16px; border-radius:999px; margin-right:18px;">The task</span>A reporting UI for surveillance research and investigation.</div>
+    <div style="display:grid; grid-template-columns:1fr auto 1fr; align-items:stretch; gap:36px;">
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:20px; padding:48px 52px;">
+        <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:28px; font-weight:500; color:#3b4a44; margin-bottom:26px;">Before</div>
+        <div style="font-size:76px; font-weight:700; line-height:1; letter-spacing:-0.02em; color:#14201b;">3 weeks</div>
+        <div style="font-size:38px; font-weight:400; line-height:1.4; color:#3b4a44; margin-top:18px;">One developer, heads down.</div>
+      </div>
+      <div style="display:flex; align-items:center; justify-content:center; font-size:80px; font-weight:300; color:#9ec5b3;">→</div>
+      <div style="background:#003824; border:1px solid #003824; border-radius:20px; padding:48px 52px;">
+        <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:28px; font-weight:500; color:#9ec5b3; margin-bottom:26px;">After</div>
+        <div style="font-size:76px; font-weight:700; line-height:1; letter-spacing:-0.02em; color:#ffffff;">3 days</div>
+        <div style="font-size:38px; font-weight:400; line-height:1.4; color:#cfe2d8; margin-top:18px;">The agent works; we review.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ SLIDE 4 — WHOLE LIFECYCLE ============================ -->
+  <section data-label="04 Whole lifecycle" data-screen-label="04 Whole lifecycle" data-speaker-notes="And this isn't only about writing code, which is the part people fixate on. The agent helps across the whole lifecycle — shaping ideas, analysing an existing codebase, designing, building, reviewing code, and writing the tests. In practice that's GitHub Copilot with the Superpowers plugin doing the heavy lifting across all of it. We also use Copilot for M365 for some analysis work, though not really for coding. The breadth is the point: the gains compound across the work, not just in one slice of it." style="box-sizing:border-box; background:#ffffff; color:#14201b; padding:80px 120px; display:flex; flex-direction:column; font-family:'Inter',system-ui,sans-serif;">
+    <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.16em; font-size:28px; font-weight:500; color:#006a4d; margin-bottom:20px;">Across the whole lifecycle</div>
+    <div style="width:72px; height:5px; background:#006a4d; border-radius:2px; margin-bottom:32px;"></div>
+    <h2 style="margin:0 0 40px; font-size:76px; font-weight:700; line-height:1.04; letter-spacing:-0.02em; color:#003824; max-width:24ch;">Not just writing code.</h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:24px;">
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:18px; padding:30px 34px;">
+        <div style="font-size:40px; font-weight:600; line-height:1.12; color:#14201b; margin-bottom:12px;">Ideation</div>
+        <div style="font-size:32px; font-weight:400; line-height:1.32; color:#3b4a44;">Shape options before committing to one.</div>
+      </div>
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:18px; padding:30px 34px;">
+        <div style="font-size:40px; font-weight:600; line-height:1.12; color:#14201b; margin-bottom:12px;">Analysis</div>
+        <div style="font-size:32px; font-weight:400; line-height:1.32; color:#3b4a44;">Explore a codebase and surface trade-offs.</div>
+      </div>
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:18px; padding:30px 34px;">
+        <div style="font-size:40px; font-weight:600; line-height:1.12; color:#14201b; margin-bottom:12px;">Design</div>
+        <div style="font-size:32px; font-weight:400; line-height:1.32; color:#3b4a44;">Produce a design we review before code.</div>
+      </div>
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:18px; padding:30px 34px;">
+        <div style="font-size:40px; font-weight:600; line-height:1.12; color:#14201b; margin-bottom:12px;">Build</div>
+        <div style="font-size:32px; font-weight:400; line-height:1.32; color:#3b4a44;">One feature at a time, test-first.</div>
+      </div>
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:18px; padding:30px 34px;">
+        <div style="font-size:40px; font-weight:600; line-height:1.12; color:#14201b; margin-bottom:12px;">Code review</div>
+        <div style="font-size:32px; font-weight:400; line-height:1.32; color:#3b4a44;">A second set of eyes on every change.</div>
+      </div>
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:18px; padding:30px 34px;">
+        <div style="font-size:40px; font-weight:600; line-height:1.12; color:#14201b; margin-bottom:12px;">Testing</div>
+        <div style="font-size:32px; font-weight:400; line-height:1.32; color:#3b4a44;">Write and run the tests, not just the feature.</div>
+      </div>
+    </div>
+    <div style="margin-top:32px; font-size:34px; font-weight:400; line-height:1.4; color:#006a4d; background:#f3f8f5; border:1px solid #e6f1ec; border-radius:16px; padding:26px 34px;"><strong style="color:#003824; font-weight:600;">In practice:</strong> GitHub Copilot with the Superpowers plugin reinforces every stage above. Copilot for M365 covers some analysis — not coding.</div>
+  </section>
+
+  <!-- ============================ SLIDE 5 — HOW WE GET THERE ============================ -->
+  <section data-label="05 How we get there" data-screen-label="05 How we get there" data-speaker-notes="The speed isn't luck, and it isn't typing wishes into a box and hoping. Two things make it reliable. First, before any implementation, we have the agent write a detailed spec that we read and approve. Second, it then builds feature by feature, test-driven — the test comes first, so every step is verified before it moves to the next. That discipline, backed by the Superpowers techniques running inside Copilot, is why the speed repeats instead of being a lucky one-off." style="box-sizing:border-box; background:#ffffff; color:#14201b; padding:100px 120px; display:flex; flex-direction:column; font-family:'Inter',system-ui,sans-serif;">
+    <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.16em; font-size:28px; font-weight:500; color:#006a4d; margin-bottom:24px;">How we get there</div>
+    <div style="width:72px; height:5px; background:#006a4d; border-radius:2px; margin-bottom:48px;"></div>
+    <h2 style="margin:0 0 48px; font-size:88px; font-weight:700; line-height:1.04; letter-spacing:-0.02em; color:#003824; max-width:20ch;">We don’t prompt and hope...</h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:40px; margin-bottom:40px;">
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:20px; padding:48px 52px;">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:28px; font-weight:500; color:#006a4d; margin-bottom:20px;">01</div>
+        <div style="font-size:46px; font-weight:600; line-height:1.18; color:#14201b; margin-bottom:16px;">A detailed spec, approved first</div>
+        <div style="font-size:38px; font-weight:400; line-height:1.38; color:#3b4a44;">The agent writes a full specification; we read it and sign off before a line of code.</div>
+      </div>
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:20px; padding:48px 52px;">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:28px; font-weight:500; color:#006a4d; margin-bottom:20px;">02</div>
+        <div style="font-size:46px; font-weight:600; line-height:1.18; color:#14201b; margin-bottom:16px;">Feature by feature, test-driven</div>
+        <div style="font-size:38px; font-weight:400; line-height:1.38; color:#3b4a44;">It builds one feature at a time, tests first — each step verified before the next.</div>
+      </div>
+    </div>
+    <div style="font-family:'JetBrains Mono',monospace; font-size:34px; font-weight:500; letter-spacing:0.02em; color:#006a4d; background:#f3f8f5; border:1px solid #e6f1ec; border-radius:16px; padding:26px 34px; display:flex; flex-wrap:wrap; gap:18px; align-items:center;">
+      <span style="color:#14201b;">Spec</span><span style="color:#9ec5b3;">→</span><span style="color:#b5651d;">Approve</span><span style="color:#9ec5b3;">→</span><span>Test</span><span style="color:#9ec5b3;">→</span><span>Build</span><span style="color:#9ec5b3;">→</span><span>Verify</span><span style="color:#9ec5b3;">→</span><span style="color:#3b4a44;">next feature</span>
+    </div>
+  </section>
+
+  <!-- ============================ SLIDE 6 — IN PARALLEL ============================ -->
+  <section data-label="06 In parallel" data-screen-label="06 In parallel" data-speaker-notes="And there's a second multiplier people miss. When you hand a task to the agent, you're not sitting watching it type — you're free. You review the last piece of work, scope the next one, or pick up something else entirely. So one person keeps several streams moving at once. It isn't only that each task is faster — it's that more of them are in flight. That's a big part of where the five-times comes from." style="box-sizing:border-box; background:#ffffff; color:#14201b; padding:90px 120px; display:flex; flex-direction:column; font-family:'Inter',system-ui,sans-serif;">
+    <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.16em; font-size:28px; font-weight:500; color:#006a4d; margin-bottom:22px;">More than one at a time</div>
+    <div style="width:72px; height:5px; background:#006a4d; border-radius:2px; margin-bottom:36px;"></div>
+    <h2 style="margin:0 0 28px; font-size:76px; font-weight:700; line-height:1.04; letter-spacing:-0.02em; color:#003824; max-width:22ch;">You’re not waiting while it builds.</h2>
+    <div style="font-size:40px; font-weight:400; line-height:1.38; color:#3b4a44; margin-bottom:48px; max-width:44ch;">Hand a task to the agent and you’re free — review the last piece, scope the next, or pick up something else entirely.</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:26px;">
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:18px; padding:34px 36px;">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:28px; font-weight:500; letter-spacing:0.08em; color:#006a4d; margin-bottom:18px;">STREAM 01</div>
+        <div style="font-size:40px; font-weight:600; line-height:1.12; color:#14201b;">Build a reporting UI</div>
+        <div style="height:14px; background:#e6f1ec; border-radius:999px; margin:28px 0 18px; overflow:hidden;"><div style="width:62%; height:100%; background:#006a4d; border-radius:999px;"></div></div>
+        <div style="font-family:'JetBrains Mono',monospace; font-size:28px; color:#5e7167;">Agent building…</div>
+      </div>
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:18px; padding:34px 36px;">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:28px; font-weight:500; letter-spacing:0.08em; color:#006a4d; margin-bottom:18px;">STREAM 02</div>
+        <div style="font-size:40px; font-weight:600; line-height:1.12; color:#14201b;">Refactor the ingest job</div>
+        <div style="height:14px; background:#e6f1ec; border-radius:999px; margin:28px 0 18px; overflow:hidden;"><div style="width:38%; height:100%; background:#006a4d; border-radius:999px;"></div></div>
+        <div style="font-family:'JetBrains Mono',monospace; font-size:28px; color:#5e7167;">Agent building…</div>
+      </div>
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:18px; padding:34px 36px;">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:28px; font-weight:500; letter-spacing:0.08em; color:#006a4d; margin-bottom:18px;">STREAM 03</div>
+        <div style="font-size:40px; font-weight:600; line-height:1.12; color:#14201b;">Write the test suite</div>
+        <div style="height:14px; background:#e6f1ec; border-radius:999px; margin:28px 0 18px; overflow:hidden;"><div style="width:81%; height:100%; background:#006a4d; border-radius:999px;"></div></div>
+        <div style="font-family:'JetBrains Mono',monospace; font-size:28px; color:#5e7167;">Agent building…</div>
+      </div>
+    </div>
+    <div style="margin-top:28px; display:flex; align-items:center; gap:30px; background:#003824; border-radius:16px; padding:30px 38px;">
+      <span style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.12em; font-size:28px; font-weight:500; color:#9ec5b3; flex-shrink:0;">You</span>
+      <span style="font-size:38px; font-weight:500; line-height:1.3; color:#ffffff;">Reviewing the last task · planning the next · never blocked.</span>
+    </div>
+  </section>
+
+  <!-- ============================ SLIDE 7 — WHAT IT MEANS ============================ -->
+  <section data-label="07 What it means" data-screen-label="07 What it means" data-speaker-notes="Now pull up from the detail to what it means for this room. The headline isn't that the tool is clever — it's what a small team can now do. The right method makes a handful of people several times more productive — call it five times, faster on each task and several running at once. And the part I want you to hold onto: this is here now. Not a roadmap, not a pilot for next year. The capability is on the table today, and that's what should change how we plan." style="box-sizing:border-box; background:#003824; color:#ffffff; padding:110px 120px; display:flex; flex-direction:column; justify-content:center; font-family:'Inter',system-ui,sans-serif;">
+    <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.16em; font-size:28px; font-weight:500; color:#9ec5b3; margin-bottom:24px;">What it means</div>
+    <div style="width:72px; height:5px; background:#9ec5b3; border-radius:2px; margin-bottom:48px;"></div>
+    <div style="display:flex; align-items:center; gap:64px;">
+      <div style="flex:1;">
+        <h2 style="margin:0; font-size:86px; font-weight:700; line-height:1.07; letter-spacing:-0.02em; color:#ffffff; max-width:20ch;">A small team with the right method moves <span style="color:#9ec5b3;">several times</span> faster.</h2>
+        <div style="font-size:52px; font-weight:500; line-height:1.22; color:#cfe2d8; margin-top:44px;">And this is here <span style="color:#ffffff; font-weight:700;">now</span> — not coming.</div>
+      </div>
+      <div style="flex-shrink:0; display:flex; flex-direction:column; align-items:center;">
+        <span style="font-size:280px; font-weight:700; line-height:0.85; letter-spacing:-0.03em; color:#9ec5b3;">5×</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:28px; letter-spacing:0.1em; text-transform:uppercase; color:#9ec5b3; margin-top:18px;">Same team</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ SLIDE 8 — CLOSE ============================ -->
+  <section data-label="08 Close" data-screen-label="08 Close" data-speaker-notes="Clean button, then stop. The question in front of us isn't whether this can be done — you've just seen that it can, today. It's how fast we choose to move. Leave it there; don't drift into Q&amp;A logistics — let the last line hang and step back." style="box-sizing:border-box; background:linear-gradient(135deg,#003824 0%,#006a4d 100%); color:#ffffff; padding:110px 120px; display:flex; flex-direction:column; justify-content:space-between; font-family:'Inter',system-ui,sans-serif;">
+    <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.18em; font-size:28px; font-weight:500; color:#9ec5b3;">The question</div>
+    <div style="display:flex; flex-direction:column; justify-content:center; flex:1;">
+      <div style="font-size:60px; font-weight:400; line-height:1.25; color:#cfe2d8; margin-bottom:28px; max-width:26ch;">The question isn’t whether it can be done.</div>
+      <h2 style="margin:0; font-size:168px; font-weight:700; line-height:0.95; letter-spacing:-0.03em; color:#ffffff;">It’s how fast.</h2>
+    </div>
+    <div style="display:flex; justify-content:space-between; align-items:center; font-family:'JetBrains Mono',monospace; font-size:28px; letter-spacing:0.06em; color:#9ec5b3;">
+      <span>Agentic software development</span>
+      <span>~5× · here now</span>
+    </div>
+  </section>
+
+</x-import>
+</x-dc>
+</body>
+</html>

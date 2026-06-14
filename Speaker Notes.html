@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Agentic Software Development — Speaker Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --green-900:#003824; --green-700:#006a4d; --accent:#9ec5b3;
+    --ink:#14201b; --ink-soft:#3b4a44; --line:#dce6e1; --paper:#ffffff; --tint:#f3f8f5;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #e9efec; color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .page { max-width: 820px; margin: 0 auto; padding: 56px 56px 80px; background: var(--paper); }
+
+  header.doc { border-bottom: 3px solid var(--green-700); padding-bottom: 26px; margin-bottom: 34px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.16em;
+    font-size: 12px; font-weight: 500; color: var(--green-700); margin-bottom: 12px; }
+  h1 { margin: 0 0 10px; font-size: 34px; font-weight: 700; letter-spacing: -0.02em; color: var(--green-900); line-height: 1.1; }
+  .meta { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--ink-soft); letter-spacing: 0.04em; }
+
+  .note { display: grid; grid-template-columns: 64px 1fr; gap: 22px; padding: 24px 0 26px;
+    border-bottom: 1px solid var(--line); break-inside: avoid; page-break-inside: avoid; }
+  .note:last-child { border-bottom: none; }
+  .badge { width: 56px; height: 56px; border-radius: 12px; background: var(--green-900); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace;
+    font-size: 22px; font-weight: 500; }
+  .note .body { min-width: 0; }
+  .note .head { display: flex; align-items: baseline; justify-content: space-between; gap: 18px; margin-bottom: 10px; }
+  .note h2 { margin: 0; font-size: 21px; font-weight: 700; letter-spacing: -0.01em; color: var(--green-900); line-height: 1.2; }
+  .time { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 500; letter-spacing: 0.06em;
+    color: var(--green-700); background: var(--tint); border: 1px solid var(--line);
+    padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+  .note p { margin: 0; font-size: 16px; line-height: 1.6; color: var(--ink-soft); text-wrap: pretty; }
+
+  footer.doc { margin-top: 30px; display: flex; justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.06em;
+    text-transform: uppercase; color: #8a988f; }
+
+  @media print {
+    html, body { background: #fff; }
+    .page { max-width: none; margin: 0; padding: 0 12mm; }
+    @page { size: A4 portrait; margin: 14mm; }
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <header class="doc">
+      <div class="eyebrow">Speaker Notes</div>
+      <h1>Agentic Software Development</h1>
+      <div class="meta">8 slides &nbsp;·&nbsp; ~7 minutes &nbsp;·&nbsp; timings are guides, not gospel</div>
+    </header>
+
+    <div class="note">
+      <div class="badge">01</div>
+      <div class="body">
+        <div class="head"><h2>Hook</h2><span class="time">~0:45</span></div>
+        <p>Open on the number, no throat-clearing. We're now building software at least five times faster than we were. Work that used to take weeks, we turn around in days. Let it sit. Then: I'm going to show you what that actually means, how we make it reliable, and why it matters to a room like this one — and it isn't a someday thing, it's how we already work.</p>
+      </div>
+    </div>
+
+    <div class="note">
+      <div class="badge">02</div>
+      <div class="body">
+        <div class="head"><h2>What "agentic" means</h2><span class="time">~0:45</span></div>
+        <p>Quick translation for everyone who isn't an engineer. Most people assume AI coding is fancy autocomplete — it finishes the line you're typing. That's not what we're talking about. Agentic means you hand over an objective — build this, investigate that — and it works out the steps itself: it plans, it does the work, and it checks its own output. You're delegating an outcome, not steering keystroke by keystroke.</p>
+      </div>
+    </div>
+
+    <div class="note">
+      <div class="badge">03</div>
+      <div class="body">
+        <div class="head"><h2>The proof</h2><span class="time">~0:55</span></div>
+        <p>Let me pin that to something real. Take a concrete piece of work — building a reporting UI for surveillance research and investigation. The before: about three weeks, one developer, heads down. The after: three days, with us reviewing the work. Same output, same standard, a fraction of the time. Swap in whatever example lands best with your team.</p>
+      </div>
+    </div>
+
+    <div class="note">
+      <div class="badge">04</div>
+      <div class="body">
+        <div class="head"><h2>Across the whole lifecycle</h2><span class="time">~0:55</span></div>
+        <p>And this isn't only about writing code, which is the part people fixate on. The agent helps across the whole lifecycle — shaping ideas, analysing an existing codebase, designing, building, reviewing code, and writing the tests. In practice that's GitHub Copilot with the Superpowers plugin doing the heavy lifting across all of it. We also use Copilot for M365 for some analysis work, though not really for coding. The breadth is the point: the gains compound across the work, not just in one slice of it.</p>
+      </div>
+    </div>
+
+    <div class="note">
+      <div class="badge">05</div>
+      <div class="body">
+        <div class="head"><h2>How we get there</h2><span class="time">~0:50</span></div>
+        <p>The speed isn't luck, and it isn't typing wishes into a box and hoping. Two things make it reliable. First, before any implementation, we have the agent write a detailed spec that we read and approve. Second, it then builds feature by feature, test-driven — the test comes first, so every step is verified before it moves to the next. That discipline, backed by the Superpowers techniques running inside Copilot, is why the speed repeats instead of being a lucky one-off.</p>
+      </div>
+    </div>
+
+    <div class="note">
+      <div class="badge">06</div>
+      <div class="body">
+        <div class="head"><h2>In parallel</h2><span class="time">~0:50</span></div>
+        <p>And there's a second multiplier people miss. When you hand a task to the agent, you're not sitting watching it type — you're free. You review the last piece of work, scope the next one, or pick up something else entirely. So one person keeps several streams moving at once. It isn't only that each task is faster — it's that more of them are in flight. That's a big part of where the five-times comes from.</p>
+      </div>
+    </div>
+
+    <div class="note">
+      <div class="badge">07</div>
+      <div class="body">
+        <div class="head"><h2>What it means</h2><span class="time">~1:00</span></div>
+        <p>Now pull up from the detail to what it means for this room. The headline isn't that the tool is clever — it's what a small team can now do. The right method makes a handful of people several times more productive — call it five times, faster on each task and several running at once. And the part I want you to hold onto: this is here now. Not a roadmap, not a pilot for next year. The capability is on the table today, and that's what should change how we plan.</p>
+      </div>
+    </div>
+
+    <div class="note">
+      <div class="badge">08</div>
+      <div class="body">
+        <div class="head"><h2>Close</h2><span class="time">~0:30</span></div>
+        <p>Clean button, then stop. The question in front of us isn't whether this can be done — you've just seen that it can, today. It's how fast we choose to move. Leave it there; don't drift into Q&amp;A logistics — let the last line hang and step back.</p>
+      </div>
+    </div>
+
+    <footer class="doc">
+      <span>Agentic Software Development</span>
+      <span>~5× · here now</span>
+    </footer>
+  </div>
+</body>
+</html>
