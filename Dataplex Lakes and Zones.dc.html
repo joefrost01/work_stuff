@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; background: #0b140f; }
+</style>
+<script type="application/json" id="speaker-notes">[
+"Frame the room. Everyone here already runs the data-quality side of Dataplex \u2014 the scans and rules. What we haven't switched on is the part underneath: lakes and zones, the organising layer. That's the whole point of this briefing. By the end you'll have the mental model and a sensible structure to start with. Keep it light \u2014 this is the part of the product we don't know yet.",
+"This is the spine of the whole thing \u2014 four nested layers. A lake is a domain. A zone is a stage inside it. An asset is a pointer to real storage. An entity is the metadata Dataplex discovers for you. The single most important line is at the bottom: nothing is copied or moved. Lakes and zones are logical \u2014 a governed map laid over data that stays exactly where it already lives, in Cloud Storage and BigQuery.",
+"Now the top two layers in plain terms. A lake is a logical grouping for a domain or a business unit \u2014 think one lake for retail, one for sales, one for finance. A zone is a subdomain inside that lake, and you group zones by readiness or stage \u2014 landing, raw, curated. One lake holds many zones; a zone belongs to exactly one lake. That parent-child shape is most of the model.",
+"The bottom layer and the one real config decision. An asset maps to an actual Cloud Storage bucket or BigQuery dataset \u2014 and it can pull data from other projects into one zone, which is how you get a single governed view. An asset attaches to one zone only. Zones come in two types: raw, for data in its native format with no strict type-checking, and curated, for cleaned, structured, query-ready data. The callout is the high-value bit for engineers: upgrade a Cloud Storage asset to Managed and Dataplex swaps external tables for BigLake tables, which unlocks row- and column-level security and dynamic masking.",
+"Here's a concrete starting pattern so nobody leaves with a blank page. One lake per domain, two zones in each \u2014 raw and curated \u2014 with your existing buckets and datasets attached as assets. Lakes map to your domain boundaries, zones to trust tiers: central governance, domain ownership. It's data-mesh friendly and you refine it as you learn. Don't over-design it up front.",
+"Close on the practical. Three steps to stand up a first lake: create the lake against a project and region, add your raw and curated zones, attach your buckets and datasets as assets \u2014 console or gcloud, both work. Roles: dataplex.admin to build it, dataplex.editor for day-to-day, and grant the Dataplex service account access on resources in other projects. And tie it back to what we know: our AutoDQ and profiling don't need a lake at all \u2014 they already run on any BigQuery table. Lakes and zones are the organising and governance layer we add on top. One housekeeping note \u2014 Google renamed Universal Catalog to Knowledge Catalog this April, but every API, CLI and IAM name still says dataplex, so nothing changes for us."
+]</script>
+</helmet>
+
+<x-import component-from-global-scope="deck-stage" from="./deck-stage.js" width="1920" height="1080" hint-size="100%,100%" data-uneditable="">
+
+  <!-- ============================ SLIDE 1 — TITLE ============================ -->
+  <section data-label="01 Title" data-screen-label="01 Title" data-speaker-notes="Frame the room. Everyone here already runs the data-quality side of Dataplex — the scans and rules. What we haven't switched on is the part underneath: lakes and zones, the organising layer. That's the whole point of this briefing. By the end you'll have the mental model and a sensible structure to start with." style="box-sizing:border-box; background:linear-gradient(135deg,#003824 0%,#006a4d 100%); color:#ffffff; padding:110px 120px; display:flex; flex-direction:column; justify-content:space-between; font-family:'Inter',system-ui,sans-serif;">
+    <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.18em; font-size:28px; font-weight:500; color:#9ec5b3;">Dataplex · Engineer Briefing</div>
+    <div style="display:flex; flex-direction:column; justify-content:center; flex:1;">
+      <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.14em; font-size:34px; font-weight:500; color:#9ec5b3; margin-bottom:30px;">The organising layer</div>
+      <h1 style="margin:0; font-size:200px; font-weight:700; line-height:0.9; letter-spacing:-0.03em; color:#ffffff;">Lakes<span style="color:#9ec5b3;"> &amp; </span>Zones</h1>
+      <div style="font-size:56px; font-weight:500; line-height:1.22; color:#eaf4ef; max-width:30ch; margin-top:40px;">The part of Dataplex underneath the data quality we already run.</div>
+    </div>
+    <div style="display:flex; justify-content:space-between; align-items:center; font-family:'JetBrains Mono',monospace; font-size:28px; letter-spacing:0.06em; color:#9ec5b3;">
+      <span>How Dataplex organises &amp; governs the data we already have</span>
+      <span>~6 min</span>
+    </div>
+  </section>
+
+  <!-- ============================ SLIDE 2 — MENTAL MODEL ============================ -->
+  <section data-label="02 Mental model" data-screen-label="02 Mental model" data-speaker-notes="This is the spine of the whole thing — four nested layers. A lake is a domain. A zone is a stage inside it. An asset is a pointer to real storage. An entity is the metadata Dataplex discovers. The single most important line is at the bottom: nothing is copied or moved. Lakes and zones are logical — a governed map over data that stays where it already lives." style="box-sizing:border-box; background:#ffffff; color:#14201b; padding:100px 120px; display:flex; flex-direction:column; font-family:'Inter',system-ui,sans-serif;">
+    <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.16em; font-size:28px; font-weight:500; color:#006a4d; margin-bottom:24px;">The mental model</div>
+    <div style="width:72px; height:5px; background:#006a4d; border-radius:2px; margin-bottom:44px;"></div>
+    <h2 style="margin:0 0 56px; font-size:84px; font-weight:700; line-height:1.04; letter-spacing:-0.02em; color:#003824; max-width:24ch;">Four nested layers over data you already have.</h2>
+    <div style="display:flex; align-items:stretch; gap:20px;">
+      <div style="flex:1; background:#003824; border-radius:20px; padding:40px 36px;">
+        <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:26px; font-weight:500; color:#9ec5b3; margin-bottom:22px;">Lake</div>
+        <div style="font-size:42px; font-weight:600; line-height:1.12; color:#ffffff;">A domain</div>
+        <div style="font-size:30px; font-weight:400; line-height:1.34; color:#cfe2d8; margin-top:14px;">A business unit — retail, finance.</div>
+      </div>
+      <div style="display:flex; align-items:center; font-size:54px; font-weight:300; color:#9ec5b3;">›</div>
+      <div style="flex:1; background:#f3f8f5; border:1px solid #e6f1ec; border-radius:20px; padding:40px 36px;">
+        <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:26px; font-weight:500; color:#006a4d; margin-bottom:22px;">Zone</div>
+        <div style="font-size:42px; font-weight:600; line-height:1.12; color:#14201b;">A stage</div>
+        <div style="font-size:30px; font-weight:400; line-height:1.34; color:#3b4a44; margin-top:14px;">A subdomain by readiness.</div>
+      </div>
+      <div style="display:flex; align-items:center; font-size:54px; font-weight:300; color:#9ec5b3;">›</div>
+      <div style="flex:1; background:#f3f8f5; border:1px solid #e6f1ec; border-radius:20px; padding:40px 36px;">
+        <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:26px; font-weight:500; color:#006a4d; margin-bottom:22px;">Asset</div>
+        <div style="font-size:42px; font-weight:600; line-height:1.12; color:#14201b;">A pointer</div>
+        <div style="font-size:30px; font-weight:400; line-height:1.34; color:#3b4a44; margin-top:14px;">To a GCS bucket or BQ dataset.</div>
+      </div>
+      <div style="display:flex; align-items:center; font-size:54px; font-weight:300; color:#9ec5b3;">›</div>
+      <div style="flex:1; background:#f3f8f5; border:1px solid #e6f1ec; border-radius:20px; padding:40px 36px;">
+        <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:26px; font-weight:500; color:#006a4d; margin-bottom:22px;">Entity</div>
+        <div style="font-size:42px; font-weight:600; line-height:1.12; color:#14201b;">Metadata</div>
+        <div style="font-size:30px; font-weight:400; line-height:1.34; color:#3b4a44; margin-top:14px;">Auto-discovered table / fileset.</div>
+      </div>
+    </div>
+    <div style="margin-top:44px; font-size:36px; font-weight:400; line-height:1.4; color:#006a4d; background:#f3f8f5; border:1px solid #e6f1ec; border-radius:16px; padding:30px 38px;"><strong style="color:#003824; font-weight:700;">Nothing is copied or moved.</strong> Lakes and zones are logical — a governed map over data that stays where it lives.</div>
+  </section>
+
+  <!-- ============================ SLIDE 3 — LAKE & ZONE ============================ -->
+  <section data-label="03 Lake & Zone" data-screen-label="03 Lake & Zone" data-speaker-notes="The top two layers in plain terms. A lake is a logical grouping for a domain or business unit — one lake for retail, one for finance. A zone is a subdomain inside that lake, grouped by stage — landing, raw, curated. One lake holds many zones; a zone belongs to exactly one lake." style="box-sizing:border-box; background:#ffffff; color:#14201b; padding:100px 120px; display:flex; flex-direction:column; font-family:'Inter',system-ui,sans-serif;">
+    <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.16em; font-size:28px; font-weight:500; color:#006a4d; margin-bottom:24px;">Lake &amp; zone</div>
+    <div style="width:72px; height:5px; background:#006a4d; border-radius:2px; margin-bottom:44px;"></div>
+    <h2 style="margin:0 0 56px; font-size:84px; font-weight:700; line-height:1.04; letter-spacing:-0.02em; color:#003824; max-width:22ch;">A lake is a domain. A zone is a stage within it.</h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:36px;">
+      <div style="background:#003824; border-radius:20px; padding:52px 54px;">
+        <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:28px; font-weight:500; color:#9ec5b3; margin-bottom:26px;">Lake</div>
+        <div style="font-size:50px; font-weight:600; line-height:1.18; color:#ffffff;">A logical grouping for a domain or business unit.</div>
+        <div style="font-size:34px; font-weight:400; line-height:1.4; color:#cfe2d8; margin-top:24px;">One lake each for <strong style="color:#ffffff; font-weight:600;">retail · markets · finance</strong>.</div>
+      </div>
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:20px; padding:52px 54px;">
+        <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:28px; font-weight:500; color:#006a4d; margin-bottom:26px;">Zone</div>
+        <div style="font-size:50px; font-weight:600; line-height:1.18; color:#14201b;">A subdomain inside a lake, grouped by readiness.</div>
+        <div style="font-family:'JetBrains Mono',monospace; font-size:32px; font-weight:500; color:#006a4d; margin-top:24px; display:flex; flex-wrap:wrap; gap:14px; align-items:center;"><span style="color:#3b4a44;">landing</span><span style="color:#9ec5b3;">→</span><span style="color:#14201b;">raw</span><span style="color:#9ec5b3;">→</span><span style="color:#14201b;">curated</span></div>
+      </div>
+    </div>
+    <div style="margin-top:36px; font-size:34px; font-weight:400; line-height:1.4; color:#3b4a44;">One lake holds <strong style="color:#003824; font-weight:600;">many zones</strong>; a zone belongs to <strong style="color:#003824; font-weight:600;">exactly one lake</strong>.</div>
+  </section>
+
+  <!-- ============================ SLIDE 4 — ASSETS & ZONE TYPES ============================ -->
+  <section data-label="04 Assets & types" data-screen-label="04 Assets & types" data-speaker-notes="The bottom layer and the one real config decision. An asset maps to a Cloud Storage bucket or BigQuery dataset — and can pull data from other projects into one zone. An asset attaches to one zone only. Zones come in two types: raw, native format, no strict type-checking; and curated, cleaned and query-ready. The callout is the high-value bit: upgrade a GCS asset to Managed and Dataplex swaps external tables for BigLake, unlocking row/column security and masking." style="box-sizing:border-box; background:#ffffff; color:#14201b; padding:90px 120px; display:flex; flex-direction:column; font-family:'Inter',system-ui,sans-serif;">
+    <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.16em; font-size:28px; font-weight:500; color:#006a4d; margin-bottom:20px;">Assets &amp; zone types</div>
+    <div style="width:72px; height:5px; background:#006a4d; border-radius:2px; margin-bottom:36px;"></div>
+    <h2 style="margin:0 0 44px; font-size:76px; font-weight:700; line-height:1.04; letter-spacing:-0.02em; color:#003824; max-width:24ch;">Assets point at real storage. Zones come in two types.</h2>
+    <div style="display:grid; grid-template-columns:1.1fr 1fr; gap:30px;">
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:20px; padding:44px 48px;">
+        <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:28px; font-weight:500; color:#006a4d; margin-bottom:24px;">Asset</div>
+        <div style="font-size:46px; font-weight:600; line-height:1.18; color:#14201b;">Maps to a Cloud Storage bucket or BigQuery dataset — even across projects.</div>
+        <div style="font-size:32px; font-weight:400; line-height:1.4; color:#3b4a44; margin-top:22px;">Attached once; an asset can't belong to two zones.</div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:30px;">
+        <div style="flex:1; background:#f3f8f5; border:1px solid #e6f1ec; border-radius:20px; padding:34px 40px;">
+          <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:26px; font-weight:500; color:#006a4d; margin-bottom:14px;">Raw zone</div>
+          <div style="font-size:36px; font-weight:500; line-height:1.24; color:#14201b;">Native format, no strict type-checking.</div>
+        </div>
+        <div style="flex:1; background:#f3f8f5; border:1px solid #e6f1ec; border-radius:20px; padding:34px 40px;">
+          <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:26px; font-weight:500; color:#006a4d; margin-bottom:14px;">Curated zone</div>
+          <div style="font-size:36px; font-weight:500; line-height:1.24; color:#14201b;">Cleaned, structured, query-ready.</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:36px; font-size:36px; font-weight:400; line-height:1.4; color:#14201b; background:#fbf3ea; border:1px solid #efdcc6; border-radius:16px; padding:30px 38px;"><span style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:26px; font-weight:500; color:#b5651d; background:#f4e2cf; padding:8px 16px; border-radius:999px; margin-right:18px;">Worth knowing</span>Upgrade a GCS asset to <strong style="color:#b5651d; font-weight:700;">Managed</strong> → Dataplex swaps external tables for <strong style="color:#003824; font-weight:600;">BigLake</strong>, unlocking row/column security and masking.</div>
+  </section>
+
+  <!-- ============================ SLIDE 5 — STARTING PATTERN ============================ -->
+  <section data-label="05 Starting pattern" data-screen-label="05 Starting pattern" data-speaker-notes="A concrete starting pattern so nobody leaves with a blank page. One lake per domain, two zones each — raw and curated — with your existing buckets and datasets attached as assets. Lakes map to domain boundaries, zones to trust tiers: central governance, domain ownership. Data-mesh friendly; refine as you learn. Don't over-design it up front." style="box-sizing:border-box; background:#ffffff; color:#14201b; padding:90px 120px; display:flex; flex-direction:column; font-family:'Inter',system-ui,sans-serif;">
+    <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.16em; font-size:28px; font-weight:500; color:#006a4d; margin-bottom:20px;">A starting pattern</div>
+    <div style="width:72px; height:5px; background:#006a4d; border-radius:2px; margin-bottom:36px;"></div>
+    <h2 style="margin:0 0 48px; font-size:76px; font-weight:700; line-height:1.04; letter-spacing:-0.02em; color:#003824; max-width:24ch;">One lake per domain, two zones each.</h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:30px;">
+      <div style="background:#003824; border-radius:20px; padding:40px 44px;">
+        <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:26px; font-weight:500; color:#9ec5b3; margin-bottom:8px;">Lake</div>
+        <div style="font-size:46px; font-weight:700; line-height:1.1; color:#ffffff; margin-bottom:28px;">Markets</div>
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <div style="background:#0a4a31; border-radius:14px; padding:24px 28px;"><div style="font-family:'JetBrains Mono',monospace; font-size:24px; letter-spacing:0.06em; color:#9ec5b3; margin-bottom:8px;">RAW ZONE</div><div style="font-size:30px; font-weight:500; color:#eaf4ef;">gs://markets-landing · gs://trade-feeds</div></div>
+          <div style="background:#0a4a31; border-radius:14px; padding:24px 28px;"><div style="font-family:'JetBrains Mono',monospace; font-size:24px; letter-spacing:0.06em; color:#9ec5b3; margin-bottom:8px;">CURATED ZONE</div><div style="font-size:30px; font-weight:500; color:#eaf4ef;">bq://markets_curated</div></div>
+        </div>
+      </div>
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:20px; padding:40px 44px;">
+        <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:26px; font-weight:500; color:#006a4d; margin-bottom:8px;">Lake</div>
+        <div style="font-size:46px; font-weight:700; line-height:1.1; color:#003824; margin-bottom:28px;">Finance</div>
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <div style="background:#ffffff; border:1px solid #e6f1ec; border-radius:14px; padding:24px 28px;"><div style="font-family:'JetBrains Mono',monospace; font-size:24px; letter-spacing:0.06em; color:#006a4d; margin-bottom:8px;">RAW ZONE</div><div style="font-size:30px; font-weight:500; color:#14201b;">gs://ledger-exports</div></div>
+          <div style="background:#ffffff; border:1px solid #e6f1ec; border-radius:14px; padding:24px 28px;"><div style="font-family:'JetBrains Mono',monospace; font-size:24px; letter-spacing:0.06em; color:#006a4d; margin-bottom:8px;">CURATED ZONE</div><div style="font-size:30px; font-weight:500; color:#14201b;">bq://finance_curated</div></div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:36px; font-size:34px; font-weight:400; line-height:1.4; color:#3b4a44;">Lakes map to <strong style="color:#003824; font-weight:600;">domain boundaries</strong>, zones to <strong style="color:#003824; font-weight:600;">trust tiers</strong> — central governance, domain ownership. Refine as you go.</div>
+  </section>
+
+  <!-- ============================ SLIDE 6 — STAND IT UP ============================ -->
+  <section data-label="06 Stand it up" data-screen-label="06 Stand it up" data-speaker-notes="Close on the practical. Three steps: create the lake against a project and region, add raw and curated zones, attach buckets and datasets as assets — console or gcloud. Roles: dataplex.admin to build, dataplex.editor day-to-day, and grant the Dataplex service account access for cross-project assets. Tie back: our AutoDQ and profiling don't need a lake — they already run on any BigQuery table. Lakes and zones are the organising layer on top. Housekeeping: Universal Catalog was renamed Knowledge Catalog this April, but every API, CLI and IAM name still says dataplex." style="box-sizing:border-box; background:#003824; color:#ffffff; padding:90px 120px; display:flex; flex-direction:column; font-family:'Inter',system-ui,sans-serif;">
+    <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.16em; font-size:28px; font-weight:500; color:#9ec5b3; margin-bottom:20px;">Standing it up</div>
+    <div style="width:72px; height:5px; background:#9ec5b3; border-radius:2px; margin-bottom:36px;"></div>
+    <h2 style="margin:0 0 44px; font-size:72px; font-weight:700; line-height:1.04; letter-spacing:-0.02em; color:#ffffff; max-width:24ch;">Three steps — and how it meets your DQ.</h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:24px; margin-bottom:32px;">
+      <div style="background:#0a4a31; border-radius:18px; padding:34px 38px;">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:28px; font-weight:500; color:#9ec5b3; margin-bottom:18px;">01</div>
+        <div style="font-size:40px; font-weight:600; line-height:1.14; color:#ffffff; margin-bottom:12px;">Create a lake</div>
+        <div style="font-size:30px; font-weight:400; line-height:1.34; color:#cfe2d8;">Against a project + region.</div>
+      </div>
+      <div style="background:#0a4a31; border-radius:18px; padding:34px 38px;">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:28px; font-weight:500; color:#9ec5b3; margin-bottom:18px;">02</div>
+        <div style="font-size:40px; font-weight:600; line-height:1.14; color:#ffffff; margin-bottom:12px;">Add zones</div>
+        <div style="font-size:30px; font-weight:400; line-height:1.34; color:#cfe2d8;">Raw and curated.</div>
+      </div>
+      <div style="background:#0a4a31; border-radius:18px; padding:34px 38px;">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:28px; font-weight:500; color:#9ec5b3; margin-bottom:18px;">03</div>
+        <div style="font-size:40px; font-weight:600; line-height:1.14; color:#ffffff; margin-bottom:12px;">Attach assets</div>
+        <div style="font-size:30px; font-weight:400; line-height:1.34; color:#cfe2d8;">Your buckets &amp; datasets.</div>
+      </div>
+    </div>
+    <div style="font-family:'JetBrains Mono',monospace; font-size:28px; font-weight:400; line-height:1.5; color:#9ec5b3; margin-bottom:28px;"><span style="color:#ffffff;">roles/dataplex.admin</span> to build · <span style="color:#ffffff;">roles/dataplex.editor</span> day-to-day · grant the <span style="color:#ffffff;">gcp-sa-dataplex</span> service account access for cross-project assets.</div>
+    <div style="font-size:34px; font-weight:400; line-height:1.4; color:#003824; background:#9ec5b3; border-radius:16px; padding:28px 36px;"><strong style="color:#003824; font-weight:700;">Tie-back:</strong> our AutoDQ &amp; profiling don't need a lake — they already run on any BigQuery table. Lakes &amp; zones add the organising + governance layer on top.</div>
+    <div style="margin-top:auto; padding-top:32px; font-family:'JetBrains Mono',monospace; font-size:24px; line-height:1.5; color:#6f9684;">Naming: "Dataplex Universal Catalog" was renamed Knowledge Catalog (Apr 2026). APIs, CLI and IAM still say <span style="color:#9ec5b3;">dataplex</span>.</div>
+  </section>
+
+</x-import>
+</x-dc>
+</body>
+</html>
