@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; background: #0b140f; }
+  a { color: #006a4d; } a:hover { color: #003824; }
+</style>
+</helmet>
+
+<x-import component-from-global-scope="deck-stage" from="./deck-stage.js" width="1920" height="1080" hint-size="100%,100%" data-uneditable="">
+
+  <section data-label="01 Title" data-screen-label="01 Title" data-speaker-notes="Welcome. We're Platform Engineering, Innovation and AI. We sit across the Trade Execution and Surveillance labs. In the next half hour: what we do, how we work, and how your team can get our help." style="box-sizing:border-box; background:linear-gradient(135deg,#003824 0%,#006a4d 100%); color:#ffffff; padding:110px 120px; display:flex; flex-direction:column; justify-content:space-between; font-family:'Inter',system-ui,sans-serif;" data-om-slide-id="0cc6b8ee">
+    <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.18em; font-size:28px; font-weight:500; color:#9ec5b3;">Commercial Markets platform</div>
+    <div style="display:flex; flex-direction:column; justify-content:center; flex:1;">
+      <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.14em; font-size:34px; font-weight:500; color:#9ec5b3; margin-bottom:36px;">Trade Execution &amp; Surveillance labs</div>
+      <h1 style="margin:0; font-size:156px; font-weight:700; line-height:0.94; letter-spacing:-0.035em; color:#ffffff; max-width:14ch;">Platform Engineering, Innovation &amp; AI</h1>
+      <div style="font-size:48px; font-weight:500; line-height:1.24; color:#eaf4ef; max-width:30ch; margin-top:48px;">What we do, how we work, and how your team can engage us.</div>
+    </div>
+    <div style="display:flex; justify-content:space-between; align-items:center; font-family:'JetBrains Mono',monospace; font-size:28px; letter-spacing:0.06em; color:#9ec5b3;">
+      <span>For lab feature &amp; dev teams</span>
+      <span>30 min</span>
+    </div>
+  </section>
+
+  <section data-label="02 Purpose" data-screen-label="02 Purpose" data-speaker-notes="The one-line version of the team. Everything on the following slides is a version of this: helping you build and ship faster, on cloud and pipelines that are already set up well, with AI tooling that actually works in your repos. Three principles guide how we do it: we prototype early, we reuse and improve the golden paths, and we hand work over cleanly so your team owns it." style="box-sizing:border-box; background:#003824; color:#ffffff; padding:100px 120px; display:flex; flex-direction:column; justify-content:center; font-family:'Inter',system-ui,sans-serif;" data-om-slide-id="fe8356f5">
+    <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.16em; font-size:28px; font-weight:500; color:#9ec5b3; margin-bottom:24px;">Our purpose</div>
+    <div style="width:72px; height:5px; background:#9ec5b3; border-radius:2px; margin-bottom:56px;"></div>
+    <h2 style="margin:0 0 88px; font-size:88px; font-weight:700; line-height:1.08; letter-spacing:-0.025em; color:#ffffff; max-width:26ch; text-wrap:pretty;">We help lab teams build, ship and run software faster, and put AI to work along the way.</h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:24px;">
+      <div style="background:#0a4a31; border-radius:18px; padding:34px 38px;"><div style="font-family:'JetBrains Mono',monospace; font-size:26px; color:#9ec5b3; margin-bottom:12px;">01</div><div style="font-size:36px; font-weight:600; color:#ffffff;">Prototype early</div></div>
+      <div style="background:#0a4a31; border-radius:18px; padding:34px 38px;"><div style="font-family:'JetBrains Mono',monospace; font-size:26px; color:#9ec5b3; margin-bottom:12px;">02</div><div style="font-size:36px; font-weight:600; color:#ffffff;">Reuse the golden paths</div></div>
+      <div style="background:#9ec5b3; border-radius:18px; padding:34px 38px;"><div style="font-family:'JetBrains Mono',monospace; font-size:26px; color:#0a4a31; margin-bottom:12px;">03</div><div style="font-size:36px; font-weight:600; color:#003824;">Hand over cleanly</div></div>
+    </div>
+  </section>
+
+  <section data-label="03 Who we serve" data-screen-label="03 Who we serve" data-speaker-notes="Where we sit. Commercial Markets platform has two labs we work with: Trade Execution and Surveillance. We're one team serving both, so a pattern we build for one lab is available to the other. We also act as the link out to the central Cloud and AI teams and to the other platform-engineering teams across Markets." style="box-sizing:border-box; background:#ffffff; color:#14201b; padding:100px 120px; display:flex; flex-direction:column; font-family:'Inter',system-ui,sans-serif;" data-om-slide-id="8f82cfab">
+    <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.16em; font-size:28px; font-weight:500; color:#006a4d; margin-bottom:24px;">Who we serve</div>
+    <div style="width:72px; height:5px; background:#006a4d; border-radius:2px; margin-bottom:44px;"></div>
+    <h2 style="margin:0 0 48px; font-size:76px; font-weight:700; line-height:1.04; letter-spacing:-0.02em; color:#003824;">We support two labs on the Commercial Markets platform.</h2>
+    <div style="display:flex; flex-direction:column; gap:20px;">
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:22px; padding:30px 34px 34px;">
+        <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:24px; color:#006a4d; margin-bottom:20px;">Commercial Markets platform</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+          <div style="background:#ffffff; border:1px solid #e6f1ec; border-radius:16px; padding:30px 34px;"><div style="font-size:40px; font-weight:700; color:#003824; margin-bottom:8px;">Trade Execution lab</div><div style="font-size:28px; color:#3b4a44;">Feature teams building execution apps &amp; services</div></div>
+          <div style="background:#ffffff; border:1px solid #e6f1ec; border-radius:16px; padding:30px 34px;"><div style="font-size:40px; font-weight:700; color:#003824; margin-bottom:8px;">Surveillance lab</div><div style="font-size:28px; color:#3b4a44;">Feature teams building surveillance apps &amp; services</div></div>
+        </div>
+      </div>
+      <div style="background:#003824; border-radius:18px; padding:30px 36px; display:flex; justify-content:space-between; align-items:center; gap:30px;">
+        <div style="font-size:38px; font-weight:700; color:#ffffff;">Platform Engineering, Innovation &amp; AI</div>
+        <div style="font-family:'JetBrains Mono',monospace; font-size:26px; color:#9ec5b3;">one team · both labs</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:18px; flex-wrap:wrap;">
+        <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:24px; color:#6f9684; margin-right:8px;">We liaise with</div>
+        <div style="border:2px solid #9ec5b3; border-radius:999px; padding:12px 28px; font-size:28px; font-weight:600; color:#003824;">Central Cloud team</div>
+        <div style="border:2px solid #9ec5b3; border-radius:999px; padding:12px 28px; font-size:28px; font-weight:600; color:#003824;">Central AI team</div>
+        <div style="border:2px solid #9ec5b3; border-radius:999px; padding:12px 28px; font-size:28px; font-weight:600; color:#003824;">Markets platform-engineering teams</div>
+      </div>
+    </div>
+  </section>
+
+  <section data-label="04 Five areas" data-screen-label="04 Five areas" data-speaker-notes="This is the map for the rest of the talk. Five areas: building and prototyping, pipelines and quality, cloud, AI-assisted engineering, and connecting and enabling teams. We'll take each in turn, then finish on how to work with us." style="box-sizing:border-box; background:#ffffff; color:#14201b; padding:100px 120px; display:flex; flex-direction:column; font-family:'Inter',system-ui,sans-serif;" data-om-slide-id="2957b4bf">
+    <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.16em; font-size:28px; font-weight:500; color:#006a4d; margin-bottom:24px;">What we do</div>
+    <div style="width:72px; height:5px; background:#006a4d; border-radius:2px; margin-bottom:44px;"></div>
+    <h2 style="margin:0 0 56px; font-size:76px; font-weight:700; line-height:1.04; letter-spacing:-0.02em; color:#003824;">Our work falls into five areas.</h2>
+    <div style="display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:20px; flex:1; max-height:560px;">
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:20px; padding:34px 30px; display:flex; flex-direction:column; gap:18px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; color:#006a4d;"><span style="font-family:'JetBrains Mono',monospace; font-size:30px; font-weight:700; color:#9ec5b3;">01</span><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.350 22.350 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.030 2-4c1.62-1.08 5 0 5 0"></path><path d="M12 15v5s3.030-.55 4-2c1.08-1.62 0-5 0-5"></path></svg></div>
+        <div style="font-size:36px; font-weight:700; line-height:1.1; color:#003824; min-height:80px;">Build &amp; prototype</div>
+        <div style="height:1px; background:#d6e6de;"></div>
+        <div style="font-size:26px; line-height:1.3; color:#3b4a44;">Rapid prototypes on the IDP</div>
+        <div style="font-size:26px; line-height:1.3; color:#3b4a44;">Golden path onboarding</div>
+        <div style="font-size:26px; line-height:1.3; color:#3b4a44;">Initial builds for feature teams</div>
+      </div>
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:20px; padding:34px 30px; display:flex; flex-direction:column; gap:18px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; color:#006a4d;"><span style="font-family:'JetBrains Mono',monospace; font-size:30px; font-weight:700; color:#9ec5b3;">02</span><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect width="8" height="8" x="3" y="3" rx="2"></rect><path d="M7 11v4a2 2 0 0 0 2 2h4"></path><rect width="8" height="8" x="13" y="13" rx="2"></rect></svg></div>
+        <div style="font-size:36px; font-weight:700; line-height:1.1; color:#003824; min-height:80px;">Pipelines &amp; quality</div>
+        <div style="height:1px; background:#d6e6de;"></div>
+        <div style="font-size:26px; line-height:1.3; color:#3b4a44;">Jenkins → Harness</div>
+        <div style="font-size:26px; line-height:1.3; color:#3b4a44;">Better CI/CD</div>
+        <div style="font-size:26px; line-height:1.3; color:#3b4a44;">Automated testing</div>
+      </div>
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:20px; padding:34px 30px; display:flex; flex-direction:column; gap:18px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; color:#006a4d;"><span style="font-family:'JetBrains Mono',monospace; font-size:30px; font-weight:700; color:#9ec5b3;">03</span><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.500 4.500 0 1 1 0 9Z"></path></svg></div>
+        <div style="font-size:36px; font-weight:700; line-height:1.1; color:#003824; min-height:80px;">Cloud</div>
+        <div style="height:1px; background:#d6e6de;"></div>
+        <div style="font-size:26px; line-height:1.3; color:#3b4a44;">On-prem → cloud migration</div>
+        <div style="font-size:26px; line-height:1.3; color:#3b4a44;">Design with FinOps in mind</div>
+        <div style="font-size:26px; line-height:1.3; color:#3b4a44;">Troubleshooting advice</div>
+      </div>
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:20px; padding:34px 30px; display:flex; flex-direction:column; gap:18px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; color:#006a4d;"><span style="font-family:'JetBrains Mono',monospace; font-size:30px; font-weight:700; color:#9ec5b3;">04</span><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path><path d="M20 3v4"></path><path d="M22 5h-4"></path><path d="M4 17v2"></path><path d="M5 18H3"></path></svg></div>
+        <div style="font-size:36px; font-weight:700; line-height:1.1; color:#003824; min-height:80px;">AI-assisted engineering</div>
+        <div style="height:1px; background:#d6e6de;"></div>
+        <div style="font-size:26px; line-height:1.3; color:#3b4a44;">Repos primed for AI</div>
+        <div style="font-size:26px; line-height:1.3; color:#3b4a44;">New AI solutions onboarded</div>
+        <div style="font-size:26px; line-height:1.3; color:#3b4a44;">AI opportunities with the business</div>
+      </div>
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:20px; padding:34px 30px; display:flex; flex-direction:column; gap:18px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; color:#006a4d;"><span style="font-family:'JetBrains Mono',monospace; font-size:30px; font-weight:700; color:#9ec5b3;">05</span><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
+        <div style="font-size:36px; font-weight:700; line-height:1.1; color:#003824; min-height:80px;">Connect &amp; enable</div>
+        <div style="height:1px; background:#d6e6de;"></div>
+        <div style="font-size:26px; line-height:1.3; color:#3b4a44;">Central Cloud &amp; AI liaison</div>
+        <div style="font-size:26px; line-height:1.3; color:#3b4a44;">Shared Markets patterns</div>
+        <div style="font-size:26px; line-height:1.3; color:#3b4a44;">Hackathons &amp; spin-ups</div>
+      </div>
+    </div>
+  </section>
+
+  <section data-label="05 Build &amp; prototype" data-screen-label="05 Build &amp; prototype" data-speaker-notes="Area one. When there's a new idea or pattern to try, we prototype it quickly on the internal developer platform using the golden paths, and deploy it to the cloud so it's real, not a slide. If it works, a feature team takes it over. We also do initial build work for feature teams: repo, pipeline, infrastructure and a first service, so the team starts on solid ground. The golden paths themselves are provided by the central teams; the labs consume them. Our part is helping lab teams onboard to them and keeping up to date as new ones are released." style="box-sizing:border-box; background:#ffffff; color:#14201b; padding:100px 120px; display:flex; flex-direction:column; font-family:'Inter',system-ui,sans-serif;" data-om-slide-id="1df55d34">
+    <div style="display:flex; align-items:center; gap:16px; font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.16em; font-size:28px; font-weight:500; color:#006a4d; margin-bottom:24px;"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.350 22.350 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.030 2-4c1.62-1.08 5 0 5 0"></path><path d="M12 15v5s3.030-.55 4-2c1.08-1.62 0-5 0-5"></path></svg><span>01 · Build &amp; prototype</span></div>
+    <div style="width:72px; height:5px; background:#006a4d; border-radius:2px; margin-bottom:44px;"></div>
+    <h2 style="margin:0 0 52px; font-size:76px; font-weight:700; line-height:1.04; letter-spacing:-0.02em; color:#003824; max-width:28ch;">We prototype new patterns and apps on the developer platform.</h2>
+    <div style="display:grid; grid-template-columns:1fr auto 1fr auto 1fr auto 1fr; align-items:stretch; gap:16px; margin-bottom:28px;">
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:18px; padding:28px 30px;"><div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:24px; color:#006a4d; margin-bottom:10px;">Idea</div><div style="font-size:30px; font-weight:600; line-height:1.25; color:#14201b;">A new pattern or app from a lab team</div></div>
+      <div style="display:flex; align-items:center; font-family:'JetBrains Mono',monospace; font-size:36px; color:#9ec5b3;">→</div>
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:18px; padding:28px 30px;"><div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:24px; color:#006a4d; margin-bottom:10px;">Prototype</div><div style="font-size:30px; font-weight:600; line-height:1.25; color:#14201b;">Built on the IDP with golden paths</div></div>
+      <div style="display:flex; align-items:center; font-family:'JetBrains Mono',monospace; font-size:36px; color:#9ec5b3;">→</div>
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:18px; padding:28px 30px;"><div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:24px; color:#006a4d; margin-bottom:10px;">Deploy</div><div style="font-size:30px; font-weight:600; line-height:1.25; color:#14201b;">Running in the cloud, not on a laptop</div></div>
+      <div style="display:flex; align-items:center; font-family:'JetBrains Mono',monospace; font-size:36px; color:#9ec5b3;">→</div>
+      <div style="background:#003824; border-radius:18px; padding:28px 30px;"><div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:24px; color:#9ec5b3; margin-bottom:10px;">Hand over</div><div style="font-size:30px; font-weight:600; line-height:1.25; color:#ffffff;">A feature team owns it from here</div></div>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
+      <div style="border-top:3px solid #006a4d; padding-top:24px;"><div style="font-size:34px; font-weight:700; color:#003824; margin-bottom:10px;">Initial build work</div><div style="font-size:30px; line-height:1.4; color:#3b4a44;">Repo, pipeline, infrastructure and a first service for a feature team, then we step back.</div></div>
+      <div style="border-top:3px solid #9ec5b3; padding-top:24px;"><div style="font-size:34px; font-weight:700; color:#003824; margin-bottom:10px;">Golden path onboarding</div><div style="font-size:30px; line-height:1.4; color:#3b4a44;">We help lab teams adopt the golden paths and keep up to date as new ones are released.</div></div>
+    </div>
+    <div style="display:flex; align-items:center; gap:22px; background:#fbf3ea; border:1px solid #efdcc6; border-radius:16px; padding:22px 32px; margin-top:auto;">
+      <span style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:24px; color:#b5651d; background:#f4e2cf; padding:8px 16px; border-radius:999px; white-space:nowrap;">What we don't do</span>
+      <span style="font-size:28px; line-height:1.35; color:#14201b;">Create the golden paths (the central teams provide them) or own prototypes long term. Feature teams take them over.</span>
+    </div>
+  </section>
+
+  <section data-label="06 Jenkins to Harness" data-screen-label="06 Jenkins to Harness" data-speaker-notes="Area two, pipelines. Many lab pipelines still run on Jenkins and are moving to Harness. We help with that migration: we look at what your pipelines do today, map them onto Harness templates, migrate alongside your team rather than for you, and retire the Jenkins job once the new pipeline is proven. The goal is fewer bespoke pipelines and more shared templates." style="box-sizing:border-box; background:#003824; color:#ffffff; padding:100px 120px; display:flex; flex-direction:column; font-family:'Inter',system-ui,sans-serif;" data-om-slide-id="e82f8edd">
+    <div style="display:flex; align-items:center; gap:16px; font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.16em; font-size:28px; font-weight:500; color:#9ec5b3; margin-bottom:24px;"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect width="8" height="8" x="3" y="3" rx="2"></rect><path d="M7 11v4a2 2 0 0 0 2 2h4"></path><rect width="8" height="8" x="13" y="13" rx="2"></rect></svg><span>02 · Pipelines &amp; quality</span></div>
+    <div style="width:72px; height:5px; background:#9ec5b3; border-radius:2px; margin-bottom:44px;"></div>
+    <h2 style="margin:0 0 52px; font-size:76px; font-weight:700; line-height:1.04; letter-spacing:-0.02em; color:#ffffff;">We help teams move from Jenkins to Harness.</h2>
+    <div style="display:grid; grid-template-columns:1fr auto 1fr; gap:28px; align-items:stretch; margin-bottom:40px;">
+      <div style="background:#0a4a31; border-radius:20px; padding:36px 40px;">
+        <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:24px; color:#9ec5b3; margin-bottom:20px;">Jenkins today</div>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div style="font-size:32px; color:#eaf4ef;">Bespoke Jenkinsfiles per repo</div>
+          <div style="font-size:32px; color:#eaf4ef;">Copy-pasted shared steps</div>
+          <div style="font-size:32px; color:#eaf4ef;">Plugin and agent upkeep</div>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; font-family:'JetBrains Mono',monospace; font-size:48px; color:#9ec5b3;">→</div>
+      <div style="background:#9ec5b3; border-radius:20px; padding:36px 40px;">
+        <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:24px; color:#0a4a31; margin-bottom:20px;">Harness target</div>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div style="font-size:32px; font-weight:500; color:#003824;">Shared pipeline templates</div>
+          <div style="font-size:32px; font-weight:500; color:#003824;">Reusable steps and policies</div>
+          <div style="font-size:32px; font-weight:500; color:#003824;">Built-in approvals and deploy strategies</div>
+        </div>
+      </div>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:20px;">
+      <div style="border-top:2px solid #9ec5b3; padding-top:20px;"><div style="font-family:'JetBrains Mono',monospace; font-size:26px; color:#9ec5b3; margin-bottom:8px;">1</div><div style="font-size:30px; font-weight:600; color:#ffffff;">Assess current pipelines</div></div>
+      <div style="border-top:2px solid #9ec5b3; padding-top:20px;"><div style="font-family:'JetBrains Mono',monospace; font-size:26px; color:#9ec5b3; margin-bottom:8px;">2</div><div style="font-size:30px; font-weight:600; color:#ffffff;">Map to Harness templates</div></div>
+      <div style="border-top:2px solid #9ec5b3; padding-top:20px;"><div style="font-family:'JetBrains Mono',monospace; font-size:26px; color:#9ec5b3; margin-bottom:8px;">3</div><div style="font-size:30px; font-weight:600; color:#ffffff;">Migrate with your team</div></div>
+      <div style="border-top:2px solid #9ec5b3; padding-top:20px;"><div style="font-family:'JetBrains Mono',monospace; font-size:26px; color:#9ec5b3; margin-bottom:8px;">4</div><div style="font-size:30px; font-weight:600; color:#ffffff;">Retire the Jenkins job</div></div>
+    </div>
+    <div style="display:flex; align-items:center; gap:22px; background:#fbf3ea; border:1px solid #efdcc6; border-radius:16px; padding:22px 32px; margin-top:auto;">
+      <span style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:24px; color:#b5651d; background:#f4e2cf; padding:8px 16px; border-radius:999px; white-space:nowrap;">What we don't do</span>
+      <span style="font-size:28px; line-height:1.35; color:#14201b;">Migrate pipelines on your behalf or own them afterwards. We migrate alongside you; your team owns the pipeline.</span>
+    </div>
+  </section>
+
+  <section data-label="07 CI/CD &amp; testing" data-screen-label="07 CI/CD &amp; testing" data-speaker-notes="Beyond the migration itself, we help improve what the pipeline does. Three themes. Faster feedback: caching, parallel stages, failing fast. Test automation: your team owns and writes its tests. We help raise automation levels and advise on restructuring tests so more of them can run automatically in the pipeline. And shift-left checks: static analysis, dependency and secret scanning running in the pipeline rather than at the end." style="box-sizing:border-box; background:#ffffff; color:#14201b; padding:100px 120px; display:flex; flex-direction:column; font-family:'Inter',system-ui,sans-serif;" data-om-slide-id="baa042d7">
+    <div style="display:flex; align-items:center; gap:16px; font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.16em; font-size:28px; font-weight:500; color:#006a4d; margin-bottom:24px;"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect width="8" height="8" x="3" y="3" rx="2"></rect><path d="M7 11v4a2 2 0 0 0 2 2h4"></path><rect width="8" height="8" x="13" y="13" rx="2"></rect></svg><span>02 · Pipelines &amp; quality</span></div>
+    <div style="width:72px; height:5px; background:#006a4d; border-radius:2px; margin-bottom:44px;"></div>
+    <h2 style="margin:0 0 52px; font-size:76px; font-weight:700; line-height:1.04; letter-spacing:-0.02em; color:#003824; max-width:28ch;">We help improve CI/CD and automated testing.</h2>
+    <div style="background:#0a1f17; border-radius:18px; padding:30px 36px; display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:36px; box-shadow:0 30px 60px -30px rgba(0,0,0,0.5);">
+      <span style="font-family:'JetBrains Mono',monospace; font-size:28px; color:#eaf4ef;">commit</span>
+      <span style="font-family:'JetBrains Mono',monospace; font-size:28px; color:#6f9684;">→</span>
+      <span style="font-family:'JetBrains Mono',monospace; font-size:28px; color:#eaf4ef;">build</span>
+      <span style="font-family:'JetBrains Mono',monospace; font-size:28px; color:#6f9684;">→</span>
+      <span style="font-family:'JetBrains Mono',monospace; font-size:28px; color:#9ec5b3;">unit tests</span>
+      <span style="font-family:'JetBrains Mono',monospace; font-size:28px; color:#6f9684;">→</span>
+      <span style="font-family:'JetBrains Mono',monospace; font-size:28px; color:#e8b98a;">scan</span>
+      <span style="font-family:'JetBrains Mono',monospace; font-size:28px; color:#6f9684;">→</span>
+      <span style="font-family:'JetBrains Mono',monospace; font-size:28px; color:#9ec5b3;">integration tests</span>
+      <span style="font-family:'JetBrains Mono',monospace; font-size:28px; color:#6f9684;">→</span>
+      <span style="font-family:'JetBrains Mono',monospace; font-size:28px; color:#eaf4ef;">deploy</span>
+      <span style="font-family:'JetBrains Mono',monospace; font-size:28px; color:#6f9684;">→</span>
+      <span style="font-family:'JetBrains Mono',monospace; font-size:28px; color:#eaf4ef;">verify</span>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:24px;">
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:20px; padding:36px 36px;"><div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:24px; color:#006a4d; margin-bottom:14px;">Faster feedback</div><div style="font-size:32px; font-weight:600; line-height:1.25; color:#14201b;">Caching, parallel stages and failing fast.</div></div>
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:20px; padding:36px 36px;"><div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:24px; color:#006a4d; margin-bottom:14px;">Test automation</div><div style="font-size:32px; font-weight:600; line-height:1.25; color:#14201b;">Raise automation levels and advise on restructuring your tests.</div></div>
+      <div style="background:#fbf3ea; border:1px solid #efdcc6; border-radius:20px; padding:36px 36px;"><div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:24px; color:#b5651d; margin-bottom:14px;">Shift-left checks</div><div style="font-size:32px; font-weight:600; line-height:1.25; color:#14201b;">Static analysis, dependency and secret scanning in the pipeline.</div></div>
+    </div>
+    <div style="display:flex; align-items:center; gap:22px; background:#fbf3ea; border:1px solid #efdcc6; border-radius:16px; padding:22px 32px; margin-top:auto;">
+      <span style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:24px; color:#b5651d; background:#f4e2cf; padding:8px 16px; border-radius:999px; white-space:nowrap;">What we don't do</span>
+      <span style="font-size:28px; line-height:1.35; color:#14201b;">Write your tests. Feature teams own their tests; we help automate and restructure them.</span>
+    </div>
+  </section>
+
+  <section data-label="08 Cloud" data-screen-label="08 Cloud" data-speaker-notes="Area three, cloud. We help in three ways. Migration: moving workloads from on-prem to cloud, deciding whether to re-host or re-platform, and planning the cutover. Design: architecture for cloud-based deployments, with FinOps built in from the start: right-sizing, tagging, autoscaling and cost visibility. And troubleshooting advice: we're happy to help diagnose cloud and infrastructure issues and suggest next steps. We don't own support, though. Feature teams still raise their own support tickets, for example with Kyndryl." style="box-sizing:border-box; background:#ffffff; color:#14201b; padding:100px 120px; display:flex; flex-direction:column; font-family:'Inter',system-ui,sans-serif;" data-om-slide-id="6ea6ee62">
+    <div style="display:flex; align-items:center; gap:16px; font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.16em; font-size:28px; font-weight:500; color:#006a4d; margin-bottom:24px;"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.500 4.500 0 1 1 0 9Z"></path></svg><span>03 · Cloud</span></div>
+    <div style="width:72px; height:5px; background:#006a4d; border-radius:2px; margin-bottom:44px;"></div>
+    <h2 style="margin:0 0 52px; font-size:76px; font-weight:700; line-height:1.04; letter-spacing:-0.02em; color:#003824; max-width:28ch;">We help design and migrate cloud deployments.</h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:24px; align-items:stretch;">
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:20px; padding:40px 38px; display:flex; flex-direction:column; gap:14px;">
+        <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:24px; color:#006a4d;">Migrate</div>
+        <div style="font-size:38px; font-weight:700; color:#003824; margin-bottom:6px;">On-prem → cloud</div>
+        <div style="font-size:28px; color:#3b4a44;">Assess the workload</div>
+        <div style="font-size:28px; color:#3b4a44;">Re-host or re-platform</div>
+        <div style="font-size:28px; color:#3b4a44;">Plan the cutover</div>
+      </div>
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:20px; padding:40px 38px; display:flex; flex-direction:column; gap:14px;">
+        <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:24px; color:#006a4d;">Design</div>
+        <div style="font-size:38px; font-weight:700; color:#003824; margin-bottom:6px;">FinOps from day one</div>
+        <div style="font-size:28px; color:#3b4a44;">Right-sizing and autoscaling</div>
+        <div style="font-size:28px; color:#3b4a44;">Tagging for cost visibility</div>
+        <div style="font-size:28px; color:#3b4a44;">Budgets before go-live</div>
+      </div>
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:20px; padding:40px 38px; display:flex; flex-direction:column; gap:14px;">
+        <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:24px; color:#006a4d;">Advise</div>
+        <div style="font-size:38px; font-weight:700; color:#003824; margin-bottom:6px;">Troubleshooting help</div>
+        <div style="font-size:28px; color:#3b4a44;">Help diagnosing issues</div>
+        <div style="font-size:28px; color:#3b4a44;">Advice on next steps</div>
+        <div style="font-size:28px; color:#3b4a44;">The right support route</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:22px; background:#fbf3ea; border:1px solid #efdcc6; border-radius:16px; padding:22px 32px; margin-top:auto;">
+      <span style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:24px; color:#b5651d; background:#f4e2cf; padding:8px 16px; border-radius:999px; white-space:nowrap;">What we don't do</span>
+      <span style="font-size:28px; line-height:1.35; color:#14201b;">Own support or incidents. Feature teams still raise their own support tickets, e.g. with Kyndryl.</span>
+    </div>
+  </section>
+
+  <section data-label="09 AI-ready repos" data-screen-label="09 AI-ready repos" data-speaker-notes="Area four, AI-assisted engineering. AI assistants are only as good as the context they get. We prime repos with files like AGENTS.md and copilot-instructions.md, which tell the assistant how the repo builds, tests and is laid out, and what conventions to follow. Alongside the repo, we help each developer install skills plugins such as Superpowers. These are installed for the user, not in the repo, and add structured workflows like planning, test-driven development and review. And we write onboarding guides so new developers are productive with the AI tooling from day one." style="box-sizing:border-box; background:#ffffff; color:#14201b; padding:100px 120px; display:flex; flex-direction:column; font-family:'Inter',system-ui,sans-serif;" data-om-slide-id="7cb36b91">
+    <div style="display:flex; align-items:center; gap:16px; font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.16em; font-size:28px; font-weight:500; color:#006a4d; margin-bottom:24px;"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path><path d="M20 3v4"></path><path d="M22 5h-4"></path><path d="M4 17v2"></path><path d="M5 18H3"></path></svg><span>04 · AI-assisted engineering</span></div>
+    <div style="width:72px; height:5px; background:#006a4d; border-radius:2px; margin-bottom:44px;"></div>
+    <h2 style="margin:0 0 28px; font-size:76px; font-weight:700; line-height:1.04; letter-spacing:-0.02em; color:#003824;">We prime repos for AI assistants.</h2>
+    <div style="display:grid; grid-template-columns:1.1fr 0.9fr; gap:36px; align-items:start; margin-bottom:24px;">
+      <div style="background:#0a1f17; border-radius:18px; padding:34px 40px; box-shadow:0 30px 60px -30px rgba(0,0,0,0.5);">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:18px;"><span style="width:11px;height:11px;border-radius:50%;background:#9ec5b3;"></span><span style="font-family:'JetBrains Mono',monospace;font-size:24px;color:#9ec5b3;letter-spacing:0.05em;">your-service/</span></div>
+        <pre style="margin:0;font-family:'JetBrains Mono',monospace;font-size:27px;line-height:1.55;color:#eaf4ef;white-space:pre;"><span style="display:block">├── <span style="color:#e8b98a;">AGENTS.md</span>                <span style="color:#6f9684;"># build, test, layout</span></span><span style="display:block">├── .github/</span><span style="display:block">│   └── <span style="color:#e8b98a;">copilot-instructions.md</span> <span style="color:#6f9684;"># conventions</span></span><span style="display:block">├── docs/</span><span style="display:block">│   └── <span style="color:#e8b98a;">onboarding.md</span>        <span style="color:#6f9684;"># day-one guide</span></span><span style="display:block">└── src/</span></pre>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:16px; padding:22px 32px;"><div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:24px; color:#006a4d; margin-bottom:10px;">Context files</div><div style="font-size:29px; line-height:1.35; color:#14201b;">Tells the assistant how the repo works and its conventions.</div></div>
+        <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:16px; padding:22px 32px;"><div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:24px; color:#006a4d; margin-bottom:10px;">Skills · per developer</div><div style="font-size:29px; line-height:1.35; color:#14201b;">Superpowers and similar plugins, installed per user.</div></div>
+        <div style="background:#003824; border-radius:16px; padding:22px 32px;"><div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:24px; color:#9ec5b3; margin-bottom:10px;">Onboarding guides</div><div style="font-size:29px; line-height:1.35; color:#ffffff;">Get new developers productive with AI tooling on day one.</div></div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:22px; background:#fbf3ea; border:1px solid #efdcc6; border-radius:16px; padding:22px 32px; margin-top:auto; position:relative; top:0;">
+      <span style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:24px; color:#b5651d; background:#f4e2cf; padding:8px 16px; border-radius:999px; white-space:nowrap;">What we don't do</span>
+      <span style="font-size:28px; line-height:1.35; color:#14201b;">Maintain your AGENTS.md and instruction files. Keeping them current is your team's job.</span>
+    </div>
+  </section>
+
+  <section data-label="10 New AI solutions" data-screen-label="10 New AI solutions" data-speaker-notes="New AI solutions keep arriving from across the organisation: the Envoy agent framework, the Cortex API, Copilot Studio and others. We bring them into the labs. For each one we test it against real lab use cases, build a reference example, document the pattern, and support the first teams that adopt it. That way your team doesn't have to work it out alone." style="box-sizing:border-box; background:#003824; color:#ffffff; padding:100px 120px; display:flex; flex-direction:column; font-family:'Inter',system-ui,sans-serif;" data-om-slide-id="dd8f510f">
+    <div style="display:flex; align-items:center; gap:16px; font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.16em; font-size:28px; font-weight:500; color:#9ec5b3; margin-bottom:24px;"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path><path d="M20 3v4"></path><path d="M22 5h-4"></path><path d="M4 17v2"></path><path d="M5 18H3"></path></svg><span>04 · AI-assisted engineering</span></div>
+    <div style="width:72px; height:5px; background:#9ec5b3; border-radius:2px; margin-bottom:44px;"></div>
+    <h2 style="margin:0 0 52px; font-size:76px; font-weight:700; line-height:1.04; letter-spacing:-0.02em; color:#ffffff; max-width:26ch;">We onboard new AI solutions available in the organisation.</h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:24px; margin-bottom:44px;">
+      <div style="background:#0a4a31; border-radius:20px; padding:36px 40px;"><div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:24px; color:#9ec5b3; margin-bottom:14px;">Agent framework</div><div style="font-size:44px; font-weight:700; color:#ffffff;">Envoy</div></div>
+      <div style="background:#0a4a31; border-radius:20px; padding:36px 40px;"><div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:24px; color:#9ec5b3; margin-bottom:14px;">AI API</div><div style="font-size:44px; font-weight:700; color:#ffffff;">Cortex API</div></div>
+      <div style="background:#0a4a31; border-radius:20px; padding:36px 40px;"><div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:24px; color:#9ec5b3; margin-bottom:14px;">Low-code agents</div><div style="font-size:44px; font-weight:700; color:#ffffff;">Copilot Studio</div></div>
+    </div>
+    <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:24px; color:#9ec5b3; margin-bottom:20px;">For each new solution we</div>
+    <div style="display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:20px;">
+      <div style="background:#9ec5b3; border-radius:16px; padding:26px 30px; font-size:30px; font-weight:600; line-height:1.25; color:#003824;">Test it on lab use cases</div>
+      <div style="background:#9ec5b3; border-radius:16px; padding:26px 30px; font-size:30px; font-weight:600; line-height:1.25; color:#003824;">Build a reference example</div>
+      <div style="background:#9ec5b3; border-radius:16px; padding:26px 30px; font-size:30px; font-weight:600; line-height:1.25; color:#003824;">Document the pattern</div>
+      <div style="background:#9ec5b3; border-radius:16px; padding:26px 30px; font-size:30px; font-weight:600; line-height:1.25; color:#003824;">Support the first adopters</div>
+    </div>
+    <div style="display:flex; align-items:center; gap:22px; background:#fbf3ea; border:1px solid #efdcc6; border-radius:16px; padding:22px 32px; margin-top:auto;">
+      <span style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:24px; color:#b5651d; background:#f4e2cf; padding:8px 16px; border-radius:999px; white-space:nowrap;">What we don't do</span>
+      <span style="font-size:28px; line-height:1.35; color:#14201b;">Run or support Envoy, Cortex or Copilot Studio, or grant access to them. The central AI team owns those platforms.</span>
+    </div>
+  </section>
+
+  <section data-label="11 AI opportunities" data-screen-label="11 AI opportunities" data-speaker-notes="We also work with the business side of each lab to find where AI and ML can help. It runs in four stages: discover with workshops, assess value, feasibility, data and risk, prototype on real data in a fixed timebox, then scale by handing a working pattern to a feature team. On the right are typical areas we look at. It isn't only generative AI: classic machine learning like anomaly detection is often the better fit, particularly in surveillance. One thing to be clear on: we don't do the governance and service introduction work. We're happy to feed in technical guidance, but the feature team drives that process, raises the requests and creates the documentation." style="box-sizing:border-box; background:#ffffff; color:#14201b; padding:100px 120px; display:flex; flex-direction:column; font-family:'Inter',system-ui,sans-serif;" data-om-slide-id="75d331dd">
+    <div style="display:flex; align-items:center; gap:16px; font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.16em; font-size:28px; font-weight:500; color:#006a4d; margin-bottom:24px;"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path><path d="M20 3v4"></path><path d="M22 5h-4"></path><path d="M4 17v2"></path><path d="M5 18H3"></path></svg><span>04 · AI-assisted engineering</span></div>
+    <div style="width:72px; height:5px; background:#006a4d; border-radius:2px; margin-bottom:44px;"></div>
+    <h2 style="margin:0 0 52px; font-size:76px; font-weight:700; line-height:1.04; letter-spacing:-0.02em; color:#003824; max-width:28ch;">We work with the business to find AI opportunities in the labs.</h2>
+    <div style="display:grid; grid-template-columns:1.15fr 0.85fr; gap:44px; align-items:start;">
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        <div style="display:grid; grid-template-columns:72px 260px 1fr; align-items:baseline; gap:16px; border-bottom:1px solid #e6f1ec; padding-bottom:16px;"><span style="font-family:'JetBrains Mono',monospace; font-size:30px; font-weight:700; color:#9ec5b3;">01</span><span style="font-size:36px; font-weight:700; color:#003824;">Discover</span><span style="font-size:28px; color:#3b4a44;">Workshops with business and feature teams</span></div>
+        <div style="display:grid; grid-template-columns:72px 260px 1fr; align-items:baseline; gap:16px; border-bottom:1px solid #e6f1ec; padding-bottom:16px;"><span style="font-family:'JetBrains Mono',monospace; font-size:30px; font-weight:700; color:#9ec5b3;">02</span><span style="font-size:36px; font-weight:700; color:#003824;">Assess</span><span style="font-size:28px; color:#3b4a44;">Value, feasibility, data and risk</span></div>
+        <div style="display:grid; grid-template-columns:72px 260px 1fr; align-items:baseline; gap:16px; border-bottom:1px solid #e6f1ec; padding-bottom:16px;"><span style="font-family:'JetBrains Mono',monospace; font-size:30px; font-weight:700; color:#9ec5b3;">03</span><span style="font-size:36px; font-weight:700; color:#003824;">Prototype</span><span style="font-size:28px; color:#3b4a44;">Time-boxed proof on real data</span></div>
+        <div style="display:grid; grid-template-columns:72px 260px 1fr; align-items:baseline; gap:16px; padding-bottom:16px;"><span style="font-family:'JetBrains Mono',monospace; font-size:30px; font-weight:700; color:#006a4d;">04</span><span style="font-size:36px; font-weight:700; color:#003824;">Scale</span><span style="font-size:28px; color:#3b4a44;">Hand a working pattern to a feature team</span></div>
+      </div>
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:20px; padding:34px 36px;">
+        <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:24px; color:#006a4d; margin-bottom:22px;">Typical areas we explore</div>
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <div style="font-size:29px; font-weight:500; color:#14201b;">Alert triage and investigation support</div>
+          <div style="font-size:29px; font-weight:500; color:#14201b;">Anomaly detection with classic ML</div>
+          <div style="font-size:29px; font-weight:500; color:#14201b;">Search over docs and runbooks</div>
+          <div style="font-size:29px; font-weight:500; color:#14201b;">Test and code generation</div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:22px; background:#fbf3ea; border:1px solid #efdcc6; border-radius:16px; padding:22px 32px; margin-top:auto;">
+      <span style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:24px; color:#b5651d; background:#f4e2cf; padding:8px 16px; border-radius:999px; white-space:nowrap;">What we don't do</span>
+      <span style="font-size:28px; line-height:1.35; color:#14201b;">Governance and service introduction. We give technical input; feature teams drive the process, raise requests and write the documentation.</span>
+    </div>
+  </section>
+
+  <section data-label="12 Connections" data-screen-label="12 Connections" data-speaker-notes="Area five, connecting. We sit between the labs and the central teams. Towards you we bring patterns, support and build help. Towards central Cloud and AI we carry your requirements and escalations, and get early access to what's coming. With the other platform-engineering teams across Markets we agree shared best-practice patterns, so a golden path in our labs looks like one elsewhere in Markets." style="box-sizing:border-box; background:#ffffff; color:#14201b; padding:100px 120px; display:flex; flex-direction:column; font-family:'Inter',system-ui,sans-serif;" data-om-slide-id="f015eb88">
+    <div style="display:flex; align-items:center; gap:16px; font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.16em; font-size:28px; font-weight:500; color:#006a4d; margin-bottom:24px;"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg><span>05 · Connect &amp; enable</span></div>
+    <div style="width:72px; height:5px; background:#006a4d; border-radius:2px; margin-bottom:44px;"></div>
+    <h2 style="margin:0 0 52px; font-size:76px; font-weight:700; line-height:1.04; letter-spacing:-0.02em; color:#003824;">We connect the labs with central and Markets teams.</h2>
+    <div style="display:grid; grid-template-columns:1fr 200px 1fr 200px 1fr; align-items:center; gap:0;">
+      <div style="display:flex; flex-direction:column; gap:18px;">
+        <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:16px; padding:28px 30px; font-size:32px; font-weight:700; color:#003824;">Trade Execution lab</div>
+        <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:16px; padding:28px 30px; font-size:32px; font-weight:700; color:#003824;">Surveillance lab</div>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:8px; padding:0 12px;">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:40px; color:#9ec5b3;">⇄</div>
+        <div style="font-size:24px; line-height:1.3; color:#3b4a44; text-align:center;">patterns, support, builds</div>
+      </div>
+      <div style="background:#003824; border-radius:20px; padding:44px 36px; text-align:center;">
+        <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:24px; color:#9ec5b3; margin-bottom:14px;">Us</div>
+        <div style="font-size:38px; font-weight:700; line-height:1.15; color:#ffffff;">Platform Engineering, Innovation &amp; AI</div>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:8px; padding:0 12px;">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:40px; color:#9ec5b3;">⇄</div>
+        <div style="font-size:24px; line-height:1.3; color:#3b4a44; text-align:center;">requirements, escalations, shared patterns</div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:18px;">
+        <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:16px; padding:24px 30px; font-size:30px; font-weight:700; color:#003824;">Central Cloud team</div>
+        <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:16px; padding:24px 30px; font-size:30px; font-weight:700; color:#003824;">Central AI team</div>
+        <div style="background:#9ec5b3; border-radius:16px; padding:24px 30px; font-size:30px; font-weight:700; color:#003824;">Markets platform-engineering teams</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:22px; background:#fbf3ea; border:1px solid #efdcc6; border-radius:16px; padding:22px 32px; margin-top:auto;">
+      <span style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:24px; color:#b5651d; background:#f4e2cf; padding:8px 16px; border-radius:999px; white-space:nowrap;">What we don't do</span>
+      <span style="font-size:28px; line-height:1.35; color:#14201b;">Act as your only route to central teams. You can still go direct; we help where it's useful.</span>
+    </div>
+  </section>
+
+  <section data-label="13 Hackathons &amp; spin-ups" data-screen-label="13 Hackathons &amp; spin-ups" data-speaker-notes="We also run activities that get people building. Hackathons, to try new ideas and AI tooling quickly with business involvement. Spin-up sessions, to get a new team or project from nothing to a working repo and pipeline in days. Office hours, a regular drop-in for pipeline, cloud and AI questions. And show-and-tells, so what one lab builds the other lab sees." style="box-sizing:border-box; background:#ffffff; color:#14201b; padding:100px 120px; display:flex; flex-direction:column; font-family:'Inter',system-ui,sans-serif;" data-om-slide-id="ed1dd9eb">
+    <div style="display:flex; align-items:center; gap:16px; font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.16em; font-size:28px; font-weight:500; color:#006a4d; margin-bottom:24px;"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg><span>05 · Connect &amp; enable</span></div>
+    <div style="width:72px; height:5px; background:#006a4d; border-radius:2px; margin-bottom:44px;"></div>
+    <h2 style="margin:0 0 52px; font-size:76px; font-weight:700; line-height:1.04; letter-spacing:-0.02em; color:#003824;">We run hackathons and spin-up activities.</h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr; grid-auto-rows:1fr; gap:24px;">
+        <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:18px; padding:36px 40px;"><div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:24px; color:#006a4d; margin-bottom:10px;">Hackathons</div><div style="font-size:30px; line-height:1.3; color:#14201b;">Try new ideas and AI tooling fast, with the business in the room.</div></div>
+        <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:18px; padding:36px 40px;"><div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:24px; color:#006a4d; margin-bottom:10px;">Spin-up sessions</div><div style="font-size:30px; line-height:1.3; color:#14201b;">A new team or project to a working repo and pipeline in days.</div></div>
+        <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:18px; padding:36px 40px;"><div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:24px; color:#006a4d; margin-bottom:10px;">Office hours</div><div style="font-size:30px; line-height:1.3; color:#14201b;">Regular drop-in for pipeline, cloud and AI questions.</div></div>
+        <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:18px; padding:36px 40px;"><div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:24px; color:#006a4d; margin-bottom:10px;">Show &amp; tells</div><div style="font-size:30px; line-height:1.3; color:#14201b;">What one lab builds, the other lab sees.</div></div>
+    </div>
+  </section>
+
+  <section data-label="14 Operating model" data-screen-label="14 Operating model" data-speaker-notes="Now, working with us. We work in two modes. Partially embedded: we work alongside your team on an agreed scope and timeline, typically new builds, migrations and prototypes, ending with a handover. To be clear, this is help on agreed pieces of work, not extra capacity for the team backlog. On demand: you bring a question or a problem and we help, from an hour to a few days. Best for troubleshooting, reviews, advice and setting up AI tooling." style="box-sizing:border-box; background:#003824; color:#ffffff; padding:100px 120px; display:flex; flex-direction:column; font-family:'Inter',system-ui,sans-serif;" data-om-slide-id="a1986348">
+    <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.16em; font-size:28px; font-weight:500; color:#9ec5b3; margin-bottom:24px;">Working with us</div>
+    <div style="width:72px; height:5px; background:#9ec5b3; border-radius:2px; margin-bottom:44px;"></div>
+    <h2 style="margin:0 0 48px; font-size:76px; font-weight:700; line-height:1.04; letter-spacing:-0.02em; color:#ffffff;">We work in two modes: partially embedded or on demand.</h2>
+    <div style="display:grid; grid-template-columns:280px 1fr 1fr; column-gap:24px;">
+      <div></div>
+      <div style="background:#9ec5b3; border-radius:18px 18px 0 0; padding:28px 36px;"><div style="font-size:44px; font-weight:700; color:#003824;">Partially embedded</div><div style="font-size:28px; color:#0a4a31; margin-top:6px;">We work alongside your team on an agreed scope</div></div>
+      <div style="background:#0a4a31; border-radius:18px 18px 0 0; padding:28px 36px;"><div style="font-size:44px; font-weight:700; color:#ffffff;">On demand</div><div style="font-size:28px; color:#cfe2d8; margin-top:6px;">You bring a problem, we help solve it</div></div>
+      <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:24px; color:#9ec5b3; padding:20px 0; border-bottom:1px solid #0a4a31;">Best for</div>
+      <div style="font-size:30px; color:#ffffff; padding:20px 36px; border-bottom:1px solid #0a4a31;">New builds, migrations, prototypes</div>
+      <div style="font-size:30px; color:#ffffff; padding:20px 36px; border-bottom:1px solid #0a4a31;">Troubleshooting, reviews, AI tooling setup</div>
+      <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:24px; color:#9ec5b3; padding:20px 0; border-bottom:1px solid #0a4a31;">Typical length</div>
+      <div style="font-size:30px; color:#ffffff; padding:20px 36px; border-bottom:1px solid #0a4a31;">Agreed scope and timeline</div>
+      <div style="font-size:30px; color:#ffffff; padding:20px 36px; border-bottom:1px solid #0a4a31;">Hours to days</div>
+      <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:24px; color:#9ec5b3; padding:20px 0;">How it ends</div>
+      <div style="font-size:30px; color:#ffffff; padding:20px 36px;">Handover: docs, runbook, your team owns it</div>
+      <div style="font-size:30px; color:#ffffff; padding:20px 36px;">Problem solved, fix documented</div>
+    </div>
+    <div style="display:flex; align-items:center; gap:22px; background:#0a4a31; border-radius:16px; padding:22px 32px; margin-top:24px;">
+      <span style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:24px; color:#003824; background:#9ec5b3; padding:8px 16px; border-radius:999px;">Note</span>
+      <span style="font-size:30px; color:#ffffff;">We help on agreed pieces of work. We aren't additional delivery capacity for your backlog.</span>
+    </div>
+  </section>
+
+  <section data-label="15 How to engage" data-screen-label="15 How to engage" data-speaker-notes="How an engagement runs. It starts with one or more briefing sessions, usually just meeting invites, where we agree the scope of our contribution and understand the overall picture. We then raise Jiras that reflect the agreed scope and timelines. We complete the stories as agreed, and finish with a handover including any supporting materials. Three things make it go well: a clear outcome, a named owner on your side, and access to the repo." style="box-sizing:border-box; background:#ffffff; color:#14201b; padding:100px 120px; display:flex; flex-direction:column; font-family:'Inter',system-ui,sans-serif;" data-om-slide-id="a44ad904">
+    <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.16em; font-size:28px; font-weight:500; color:#006a4d; margin-bottom:24px;">Working with us</div>
+    <div style="width:72px; height:5px; background:#006a4d; border-radius:2px; margin-bottom:44px;"></div>
+    <h2 style="margin:0 0 56px; font-size:76px; font-weight:700; line-height:1.04; letter-spacing:-0.02em; color:#003824;">Engaging us takes four steps.</h2>
+    <div style="display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:24px; margin-bottom:40px;">
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:20px; padding:36px 34px;"><div style="font-family:'JetBrains Mono',monospace; font-size:56px; font-weight:700; color:#9ec5b3; line-height:1; margin-bottom:24px;">01</div><div style="font-size:36px; font-weight:700; color:#003824; margin-bottom:12px;">Briefing sessions</div><div style="font-size:28px; line-height:1.35; color:#3b4a44;">One or more meetings to agree our contribution and understand the overall picture</div></div>
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:20px; padding:36px 34px;"><div style="font-family:'JetBrains Mono',monospace; font-size:56px; font-weight:700; color:#9ec5b3; line-height:1; margin-bottom:24px;">02</div><div style="font-size:36px; font-weight:700; color:#003824; margin-bottom:12px;">Jira stories</div><div style="font-size:28px; line-height:1.35; color:#3b4a44;">Raised to reflect the agreed scope and timelines</div></div>
+      <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:20px; padding:36px 34px;"><div style="font-family:'JetBrains Mono',monospace; font-size:56px; font-weight:700; color:#9ec5b3; line-height:1; margin-bottom:24px;">03</div><div style="font-size:36px; font-weight:700; color:#003824; margin-bottom:12px;">Delivery</div><div style="font-size:28px; line-height:1.35; color:#3b4a44;">We complete the stories as agreed</div></div>
+      <div style="background:#003824; border-radius:20px; padding:36px 34px;"><div style="font-family:'JetBrains Mono',monospace; font-size:56px; font-weight:700; color:#9ec5b3; line-height:1; margin-bottom:24px;">04</div><div style="font-size:36px; font-weight:700; color:#ffffff; margin-bottom:12px;">Handover</div><div style="font-size:28px; line-height:1.35; color:#cfe2d8;">Including any supporting materials</div></div>
+    </div>
+    <div style="display:flex; align-items:center; gap:22px; background:#fbf3ea; border:1px solid #efdcc6; border-radius:16px; padding:20px 36px;">
+      <span style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:24px; color:#b5651d; background:#f4e2cf; padding:8px 16px; border-radius:999px;">What helps</span>
+      <span style="font-size:32px; color:#14201b;">A clear outcome, a named owner on your side, and access to the repo.</span>
+    </div>
+  </section>
+
+  <section data-label="16 Priorities" data-screen-label="16 Priorities" data-speaker-notes="What we're focused on right now. The main build is Bento, a microservices platform on GCP: a collection of loosely related small services. Within Bento we're building the SSI automation app, using the IDP, golden paths, Harness, GCP2 and the Cortex API, so it also exercises most of what we've talked about today. On the AI side, we're rolling out the latest GitHub Copilot plugin for VS Code and JetBrains along with the Superpowers skills plugin, and priming repos so the assistants work well in them." style="box-sizing:border-box; background:#ffffff; color:#14201b; padding:100px 120px; display:flex; flex-direction:column; font-family:'Inter',system-ui,sans-serif;" data-om-slide-id="46f66bc2">
+    <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.16em; font-size:28px; font-weight:500; color:#006a4d; margin-bottom:24px;">Working with us</div>
+    <div style="width:72px; height:5px; background:#006a4d; border-radius:2px; margin-bottom:44px;"></div>
+    <h2 style="margin:0 0 52px; font-size:76px; font-weight:700; line-height:1.04; letter-spacing:-0.02em; color:#003824;">These are our current priorities.</h2>
+    <div style="display:grid; grid-template-columns:1.15fr 0.85fr; gap:24px; align-items:stretch;">
+      <div style="background:#003824; border-radius:22px; padding:40px 44px; display:flex; flex-direction:column; gap:24px;">
+        <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:24px; color:#9ec5b3;">Platform build</div>
+        <div style="font-size:48px; font-weight:700; color:#ffffff;">Bento on GCP</div>
+        <div style="font-size:30px; line-height:1.35; color:#cfe2d8;">A microservices platform: a collection of loosely related small services.</div>
+        <div style="background:#0a4a31; border-radius:16px; padding:30px 34px; display:flex; flex-direction:column; gap:18px;">
+          <div style="font-size:36px; font-weight:700; color:#ffffff;">SSI automation app</div>
+          <div style="font-size:28px; color:#cfe2d8;">Part of Bento, built with</div>
+          <div style="display:flex; flex-wrap:wrap; gap:12px;"><span style="border:2px solid #9ec5b3; border-radius:999px; padding:8px 20px; font-family:'JetBrains Mono',monospace; font-size:24px; color:#ffffff;">IDP</span><span style="border:2px solid #9ec5b3; border-radius:999px; padding:8px 20px; font-family:'JetBrains Mono',monospace; font-size:24px; color:#ffffff;">Golden paths</span><span style="border:2px solid #9ec5b3; border-radius:999px; padding:8px 20px; font-family:'JetBrains Mono',monospace; font-size:24px; color:#ffffff;">Harness</span><span style="border:2px solid #9ec5b3; border-radius:999px; padding:8px 20px; font-family:'JetBrains Mono',monospace; font-size:24px; color:#ffffff;">GCP2</span><span style="border:2px solid #9ec5b3; border-radius:999px; padding:8px 20px; font-family:'JetBrains Mono',monospace; font-size:24px; color:#ffffff;">Cortex API</span></div>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:24px;">
+        <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:20px; padding:36px 38px; flex:1;"><div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:24px; color:#006a4d; margin-bottom:14px;">AI-assisted engineering</div><div style="font-size:36px; font-weight:700; color:#003824; margin-bottom:12px;">GitHub Copilot rollout</div><div style="font-size:28px; line-height:1.35; color:#3b4a44;">Latest plugin for VS Code and JetBrains, with the Superpowers skills plugin</div></div>
+        <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:20px; padding:36px 38px; flex:1;"><div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; font-size:24px; color:#006a4d; margin-bottom:14px;">AI-assisted engineering</div><div style="font-size:36px; font-weight:700; color:#003824; margin-bottom:12px;">Repo priming</div><div style="font-size:28px; line-height:1.35; color:#3b4a44;">AGENTS.md and copilot-instructions.md across lab repos</div></div>
+      </div>
+    </div>
+  </section>
+
+  
+
+  <section data-label="17 Contact" data-screen-label="17 Contact" data-speaker-notes="How to reach us. For now, get in touch with Joe Frost, Joe Walder or Ben Arterton. We're building out our Confluence space, which will have more detail on how to engage and work with us." style="box-sizing:border-box; background:#ffffff; color:#14201b; padding:100px 120px; display:flex; flex-direction:column; font-family:'Inter',system-ui,sans-serif;">
+    <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.16em; font-size:28px; font-weight:500; color:#006a4d; margin-bottom:24px;">Contact</div>
+    <div style="width:72px; height:5px; background:#006a4d; border-radius:2px; margin-bottom:44px;"></div>
+    <h2 style="margin:0 0 56px; font-size:76px; font-weight:700; line-height:1.04; letter-spacing:-0.02em; color:#003824;">For now, contact one of us to engage the team.</h2>
+    <div style="display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:24px; margin-bottom:24px;">
+      <div style="background:#003824; border-radius:22px; padding:40px 40px; display:flex; align-items:center; gap:28px;"><div style="width:120px; height:120px; border-radius:50%; background:#9ec5b3; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:48px; font-weight:700; color:#003824;">JF</div><div style="font-size:44px; font-weight:700; letter-spacing:-0.02em; color:#ffffff;">Joe Frost</div></div>
+      <div style="background:#003824; border-radius:22px; padding:40px 40px; display:flex; align-items:center; gap:28px;"><div style="width:120px; height:120px; border-radius:50%; background:#9ec5b3; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:48px; font-weight:700; color:#003824;">JW</div><div style="font-size:44px; font-weight:700; letter-spacing:-0.02em; color:#ffffff;">Joe Walder</div></div>
+      <div style="background:#003824; border-radius:22px; padding:40px 40px; display:flex; align-items:center; gap:28px;"><div style="width:120px; height:120px; border-radius:50%; background:#9ec5b3; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:48px; font-weight:700; color:#003824;">BA</div><div style="font-size:44px; font-weight:700; letter-spacing:-0.02em; color:#ffffff;">Ben Arterton</div></div>
+    </div>
+    <div style="background:#f3f8f5; border:1px solid #e6f1ec; border-radius:22px; padding:36px 44px; display:flex; align-items:center; gap:28px;">
+      <span style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:24px; color:#b5651d; background:#f4e2cf; padding:8px 16px; border-radius:999px; white-space:nowrap;">Coming soon</span>
+      <div style="font-size:36px; font-weight:700; color:#003824;">Our Confluence space</div>
+      <div style="font-size:30px; line-height:1.4; color:#3b4a44;">More detail on how to engage and work with us.</div>
+    </div>
+  </section>
+
+  <section data-label="18 Questions" data-screen-label="18 Questions" data-speaker-notes="That's what we do. Open it up for questions. If you have a prototype idea, a pipeline that needs work, or an AI use case, come and talk to us." style="box-sizing:border-box; background:linear-gradient(135deg,#003824 0%,#006a4d 100%); color:#ffffff; padding:110px 120px; display:flex; flex-direction:column; justify-content:space-between; font-family:'Inter',system-ui,sans-serif;" data-om-slide-id="9b202ea3">
+    <div style="font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.18em; font-size:28px; font-weight:500; color:#9ec5b3;">Platform Engineering, Innovation &amp; AI</div>
+    <div style="display:flex; flex-direction:column; justify-content:center; flex:1;">
+      <h2 style="margin:0; font-size:220px; font-weight:700; line-height:0.86; letter-spacing:-0.04em; color:#ffffff;">Questions</h2>
+      <div style="font-size:48px; font-weight:500; line-height:1.24; color:#eaf4ef; max-width:30ch; margin-top:48px;">Bring us a prototype idea, a pipeline that needs work, or an AI use case.</div>
+    </div>
+    <div style="display:flex; justify-content:space-between; align-items:center; font-family:'JetBrains Mono',monospace; font-size:28px; letter-spacing:0.06em; color:#9ec5b3;">
+      <span>Joe Frost · Joe Walder · Ben Arterton</span>
+      <span>Confluence space coming soon</span>
+    </div>
+  </section>
+
+</x-import>
+</x-dc>
+</body>
+</html>
